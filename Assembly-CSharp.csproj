@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\PlayerController.cs" />
+    <Compile Include="Assets\Starfield.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>/Users/augustusmurphy/Documents/Unity/Space Shooter/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
