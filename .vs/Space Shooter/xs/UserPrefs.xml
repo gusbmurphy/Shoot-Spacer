@@ -1,9 +1,10 @@
 ﻿<Properties StartupConfiguration="{28FCF307-BCEB-DF00-C466-08C29A16E02D}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Starfield.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../../Unity Course/Argon Assault/Assets/Scripts/PlayerController.cs">
     <Files>
-      <File FileName="Assets/PlayerController.cs" Line="52" Column="27" />
+      <File FileName="Assets/PlayerController.cs" Line="39" Column="9" />
       <File FileName="../../Unity Course/Project Boost/Assets/Scripts/Rocket.cs" Line="81" Column="13" />
-      <File FileName="Assets/Starfield.cs" Line="56" Column="1" />
+      <File FileName="Assets/Starfield.cs" Line="73" Column="27" />
+      <File FileName="../../Unity Course/Argon Assault/Assets/Scripts/PlayerController.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
