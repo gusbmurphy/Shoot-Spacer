@@ -2,32 +2,58 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Ship Properties")]
+    [SerializeField] GameObject ship;
     [SerializeField] float thrustForce = 100f;
+    [SerializeField] float maxSpeed = 10;
     [SerializeField] float rotationSpeed = 5f;
 
-    Rigidbody rigidbody;
+    // todo implement "delayed" camera following
+    //[Header("Camera Properties")]
+    //[SerializeField] Camera mainCamera;
+    //[SerializeField] float cameraSpeed = 1f;
 
-    // Start is called before the first frame update
+    //Vector3 cameraShipDifference;
+    Rigidbody shipRigidbody;
+
     void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        shipRigidbody = ship.GetComponent<Rigidbody>();
+        //cameraShipDifference = ship.transform.position - mainCamera.transform.position;
     }
 
-    // Update is called once per frame
     void Update()
     {
         CheckForInput();
+        ClampSpeed();
+        //MakeCameraFollow();
+    }
+
+    //private void MakeCameraFollow()
+    //{
+    //    float step = cameraSpeed * Time.deltaTime;
+    //    Vector3 cameraTargetPos = ship.transform.position - cameraShipDifference;
+    //    mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, cameraTargetPos, step);
+    //}
+
+    private void ClampSpeed()
+    {
+        if (shipRigidbody.velocity.magnitude > maxSpeed)
+        {
+            shipRigidbody.velocity = Vector3.ClampMagnitude(shipRigidbody.velocity, maxSpeed);
+        }
     }
 
     private void CheckForInput()
     {
-        if (Input.GetKey(KeyCode.A)) { MoveLeft(); }
-        if (Input.GetKey(KeyCode.D)) { MoveRight(); }
-        if (Input.GetKey(KeyCode.W)) { MoveForward(); }
-        if (Input.GetKey(KeyCode.S)) { MoveBackward(); }
+        if (Input.GetKey(KeyCode.A)) { Move(Vector3.left); }
+        if (Input.GetKey(KeyCode.D)) { Move(Vector3.right); }
+        if (Input.GetKey(KeyCode.W)) { Move(Vector3.forward); }
+        if (Input.GetKey(KeyCode.S)) { Move(-Vector3.forward); }
 
         if (Input.GetAxis("Mouse X") < 0 || Input.GetAxis("Mouse X") > 0) { Rotate(); }
     }
@@ -38,43 +64,8 @@ public class PlayerController : MonoBehaviour
         transform.Rotate(0, yaw, 0);
     }
 
-    private void MoveRight()
+    private void Move(Vector3 direction)
     {
-        rigidbody.AddRelativeForce(Vector3.right * thrustForce * Time.deltaTime);
-    }
-
-    private void MoveLeft()
-    {
-        rigidbody.AddRelativeForce(Vector3.left * thrustForce * Time.deltaTime);
-    }
-
-    private void MoveForward()
-    {
-        rigidbody.AddRelativeForce(Vector3.forward * thrustForce * Time.deltaTime);
-    }
-
-    private void MoveBackward()
-    {
-        rigidbody.AddRelativeForce(-Vector3.forward * thrustForce * Time.deltaTime);
-    }
-
-    private void RotateRight()
-    {
-        rigidbody.freezeRotation = true;
-
-        float rotationThisFrame = rotationSpeed * Time.deltaTime;
-        transform.Rotate(Vector3.up * rotationThisFrame);
-
-        rigidbody.freezeRotation = false;
-    }
-
-    private void RotateLeft()
-    {
-        rigidbody.freezeRotation = true;
-
-        float rotationThisFrame = rotationSpeed * Time.deltaTime;
-        transform.Rotate(-Vector3.up * rotationThisFrame);
-
-        rigidbody.freezeRotation = false;
+        shipRigidbody.AddRelativeForce(direction * thrustForce * Time.deltaTime);
     }
 }

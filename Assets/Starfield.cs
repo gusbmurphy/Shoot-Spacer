@@ -77,8 +77,8 @@ public class Starfield : MonoBehaviour
 
             Stars[i].position = pos - transform.position;
         }
-        Particles.SetParticles(Stars, Stars.Length);
 
+        Particles.SetParticles(Stars, Stars.Length);
     }
 }
 
