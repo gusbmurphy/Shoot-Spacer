@@ -53,8 +53,7 @@ public class PlayerController : MonoBehaviour
 
     private void CheckForInput()
     {
-        if (Input.GetMouseButtonDown(0)) { Fire(true); }
-        if (Input.GetMouseButtonUp(0)) { Fire(false); }
+        if (Input.GetButtonDown("Fire1")) { Fire(); }
 
         if (Input.GetKey(KeyCode.A)) { Move(Vector3.left); }
         if (Input.GetKey(KeyCode.D)) { Move(Vector3.right); }
@@ -64,11 +63,9 @@ public class PlayerController : MonoBehaviour
         if (Input.GetAxis("Mouse X") < 0 || Input.GetAxis("Mouse X") > 0) { Rotate(); }
     }
 
-    private void Fire(bool firing)
+    private void Fire()
     {
-        print("Firing called with " + firing);
-        var emissionModule = gun.emission;
-        emissionModule.enabled = firing;
+        gun.Emit(1);
     }
 
     private void Rotate()
