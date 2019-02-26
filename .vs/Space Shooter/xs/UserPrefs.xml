@@ -1,9 +1,18 @@
 ﻿<Properties StartupConfiguration="{28FCF307-BCEB-DF00-C466-08C29A16E02D}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/PlayerController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../../Unity Course/Argon Assault/Assets/Scripts/Enemy.cs">
     <Files>
-      <File FileName="Assets/Starfield.cs" Line="73" Column="27" />
-      <File FileName="Assets/PlayerController.cs" Line="56" Column="32" />
+      <File FileName="Assets/Starfield.cs" Line="80" Column="1" NotebookId="1" />
+      <File FileName="Assets/PlayerController.cs" Line="57" Column="37" NotebookId="1" />
+      <File FileName="Assets/Enemy.cs" Line="21" Column="1" NotebookId="1" />
     </Files>
+    <FloatingWindows>
+      <FloatingWindow WindowId="1" X="744" Y="189" Width="640" Height="480">
+        <Files>
+          <File FileName="../../Unity Course/Argon Assault/Assets/Scripts/PlayerController.cs" Line="1" Column="1" />
+          <File FileName="../../Unity Course/Argon Assault/Assets/Scripts/Enemy.cs" Line="1" Column="1" />
+        </Files>
+      </FloatingWindow>
+    </FloatingWindows>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

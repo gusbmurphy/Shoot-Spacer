@@ -20,10 +20,12 @@ public class PlayerController : MonoBehaviour
 
     //Vector3 cameraShipDifference;
     Rigidbody shipRigidbody;
+    ParticleSystem.EmissionModule gunEmission;
 
     void Start()
     {
         shipRigidbody = ship.GetComponent<Rigidbody>();
+        gunEmission = gun.emission;
         //cameraShipDifference = ship.transform.position - mainCamera.transform.position;
     }
 
@@ -51,7 +53,8 @@ public class PlayerController : MonoBehaviour
 
     private void CheckForInput()
     {
-        if (Input.GetMouseButton(1)) { Fire(); }
+        if (Input.GetMouseButtonDown(0)) { Fire(true); }
+        if (Input.GetMouseButtonUp(0)) { Fire(false); }
 
         if (Input.GetKey(KeyCode.A)) { Move(Vector3.left); }
         if (Input.GetKey(KeyCode.D)) { Move(Vector3.right); }
@@ -61,9 +64,11 @@ public class PlayerController : MonoBehaviour
         if (Input.GetAxis("Mouse X") < 0 || Input.GetAxis("Mouse X") > 0) { Rotate(); }
     }
 
-    private void Fire()
+    private void Fire(bool firing)
     {
-        throw new NotImplementedException(); //todo make things shoot!
+        print("Firing called with " + firing);
+        var emissionModule = gun.emission;
+        emissionModule.enabled = firing;
     }
 
     private void Rotate()
