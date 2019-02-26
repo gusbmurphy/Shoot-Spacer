@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Ship Properties")]
     [SerializeField] GameObject ship;
+    [SerializeField] ParticleSystem gun;
     [SerializeField] float thrustForce = 100f;
     [SerializeField] float maxSpeed = 10;
     [SerializeField] float rotationSpeed = 5f;
@@ -50,12 +51,19 @@ public class PlayerController : MonoBehaviour
 
     private void CheckForInput()
     {
+        if (Input.GetMouseButton(1)) { Fire(); }
+
         if (Input.GetKey(KeyCode.A)) { Move(Vector3.left); }
         if (Input.GetKey(KeyCode.D)) { Move(Vector3.right); }
         if (Input.GetKey(KeyCode.W)) { Move(Vector3.forward); }
         if (Input.GetKey(KeyCode.S)) { Move(-Vector3.forward); }
 
         if (Input.GetAxis("Mouse X") < 0 || Input.GetAxis("Mouse X") > 0) { Rotate(); }
+    }
+
+    private void Fire()
+    {
+        throw new NotImplementedException(); //todo make things shoot!
     }
 
     private void Rotate()
