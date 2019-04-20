@@ -4,18 +4,36 @@ using UnityEngine;
 
 public class Reticle : MonoBehaviour
 {
-    [SerializeField][Tooltip("Graphic for player intended facing.")] Texture2D intent = null;
-    [SerializeField][Tooltip("Graphic for actual ship facing.")] Texture2D aim = null;
+    [SerializeField][Tooltip("Graphic for player intended facing.")] Sprite intentSprite = null;
+    [SerializeField][Tooltip("Graphic for actual ship facing.")] Sprite aimSprite = null;
     [SerializeField] Vector2 cursorHotspot = new Vector2(0, 0);
 
     GameObject player = null;
     PlayerController playerController;
-    // TODO Consider making reticle not just map to cursor but move from input.
+    GameObject mainCamera;
+    GameObject intentReticle;
+    GameObject aimReticle;
+    SpriteRenderer intentReticleSR;
+    SpriteRenderer aimReticleSR;
+
     void Start()
     {
-        Cursor.SetCursor(intent, cursorHotspot, CursorMode.Auto);
         player = GameObject.FindGameObjectWithTag("Player");
         playerController = player.GetComponent<PlayerController>();
+        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+
+        CreateIntentReticle();
+    }
+
+    private void CreateIntentReticle()
+    {
+        intentReticle = new GameObject("Intent Reticle");
+        intentReticle.transform.position = new Vector3(0, 0, 0);
+
+        intentReticleSR = intentReticle.AddComponent<SpriteRenderer>();
+        intentReticleSR.sprite = intentSprite;
+
+        intentReticle.transform.rotation = Quaternion.Euler(90, 0, 0); // Correct the rotation so the sprite is "flat"
     }
 
     void Update()

@@ -72,8 +72,9 @@ public class PlayerController : MonoBehaviour
 
     private void RotateTowardsIntendedFacing()
     {
-        var step = rotationSpeed * Time.deltaTime;
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, intendedFacingTransform.rotation, step);
+        // TODO Reimplement ship rotating
+        //var step = rotationSpeed * Time.deltaTime;
+        //transform.rotation = Quaternion.RotateTowards(transform.rotation, intendedFacingTransform.rotation, step);
     }
 
     private Vector3 CorrectIntendedFacingPosition(Vector3 newIntendedFacing)
