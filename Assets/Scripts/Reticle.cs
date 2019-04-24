@@ -25,13 +25,15 @@ public class Reticle : MonoBehaviour
 
         CreateIntentReticle();
         CreateAimReticle();
+
+        Cursor.visible = false;
     }
 
     private void CreateIntentReticle()
     {
         GameObject intentReticle = new GameObject("Intent Reticle");
         intentReticle.transform.position = new Vector3(0, 0, 0);
-        intentReticle.transform.localScale = new Vector3(.25f, .25f, 1f);
+        intentReticle.transform.localScale = new Vector3(.25f, .25f, 1f); // TODO is this the only way to make the sprite look rite?
 
         SpriteRenderer intentReticleSR = intentReticle.AddComponent<SpriteRenderer>();
         intentReticleSR.sprite = intentSprite;
@@ -49,7 +51,7 @@ public class Reticle : MonoBehaviour
     {
         GameObject aimReticle = new GameObject("Aim Reticle");
         aimReticle.transform.position = new Vector3(0, 0, 0);
-        aimReticle.transform.localScale = new Vector3(.25f, .25f, 1f);
+        aimReticle.transform.localScale = new Vector3(.25f, .25f, 1f); // TODO is this the only way to make the sprite look rite?
 
         SpriteRenderer aimReticleSR = aimReticle.AddComponent<SpriteRenderer>();
         aimReticleSR.sprite = aimSprite;
@@ -65,17 +67,30 @@ public class Reticle : MonoBehaviour
 
     void Update()
     {
-        // TODO reticles should rotate so that they align with ship's facing
         MoveIntentReticle();
         MoveAimReticle();
+        ClampReticlesWithinView();
         AdjustPlayerAim();
+    }
+
+    private void ClampReticlesWithinView()
+    {
+        // TODO how does this work?
+        Vector3 intentPos = Camera.main.WorldToViewportPoint(intent.transform.position);
+        intentPos.x = Mathf.Clamp01(intentPos.x);
+        intentPos.y = Mathf.Clamp01(intentPos.y);
+        intent.transform.position = Camera.main.ViewportToWorldPoint(intentPos);
+
+        Vector3 aimPos = Camera.main.WorldToViewportPoint(aim.transform.position);
+        aimPos.x = Mathf.Clamp01(aimPos.x);
+        aimPos.y = Mathf.Clamp01(aimPos.y);
+        aim.transform.position = Camera.main.ViewportToWorldPoint(aimPos);
     }
 
     private void MoveIntentReticle()
     {
         // TODO make this work cross-platform
         // TODO make this scale with frame rate
-        // TODO lock the intent reticle to within the screen, and then implement scrolling on screen edges
         Transform intentTransform = intent.transform;
 
         float newX = (intentTransform.position.x + Input.GetAxis("Mouse X")) * mouseSensitivity;
