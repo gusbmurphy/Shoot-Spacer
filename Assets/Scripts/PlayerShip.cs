@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+[RequireComponent(typeof(Rigidbody))]
+
 public class PlayerShip : MonoBehaviour
 {
     [Header("Ship Properties")]
@@ -13,12 +15,8 @@ public class PlayerShip : MonoBehaviour
     [SerializeField] float maxSpeed = 10;
     [SerializeField] public float rotationSpeed = 5f;
 
-    [Header("Technical")]
-    [SerializeField] Transform intendedFacingTransform;
-
     private Rigidbody shipRigidbody;
     private ParticleSystem.EmissionModule gunEmission;
-    private Vector3 intendedFacingVector;
 
     void Start()
     {
@@ -32,22 +30,14 @@ public class PlayerShip : MonoBehaviour
         ClampSpeed();
     }
 
-    private void ClampSpeed()
-    {
-        if (shipRigidbody.velocity.magnitude > maxSpeed)
-        {
-            shipRigidbody.velocity = Vector3.ClampMagnitude(shipRigidbody.velocity, maxSpeed);
-        }
-    }
-
     private void CheckForInput()
     {
         if (Input.GetButtonDown("Fire1")) { Fire(); }
 
-        if (Input.GetKey(KeyCode.A)) { Move(Vector3.left); }
-        if (Input.GetKey(KeyCode.D)) { Move(Vector3.right); }
-        if (Input.GetKey(KeyCode.W)) { Move(Vector3.forward); }
-        if (Input.GetKey(KeyCode.S)) { Move(Vector3.back); }
+        if (Input.GetKey(KeyCode.A)) { Thrust(Vector3.left); }
+        if (Input.GetKey(KeyCode.D)) { Thrust(Vector3.right); }
+        if (Input.GetKey(KeyCode.W)) { Thrust(Vector3.forward); }
+        if (Input.GetKey(KeyCode.S)) { Thrust(Vector3.back); }
     }
 
     private void Fire()
@@ -55,8 +45,16 @@ public class PlayerShip : MonoBehaviour
         gun.Emit(1);
     }
 
-    public void Move(Vector3 direction)
+    public void Thrust(Vector3 direction)
     {
         shipRigidbody.AddForce(direction * thrustForce * Time.deltaTime);
+    }
+
+    private void ClampSpeed()
+    {
+        if (shipRigidbody.velocity.magnitude > maxSpeed)
+        {
+            shipRigidbody.velocity = Vector3.ClampMagnitude(shipRigidbody.velocity, maxSpeed);
+        }
     }
 }

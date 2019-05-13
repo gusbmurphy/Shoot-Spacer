@@ -91,6 +91,7 @@ public class Reticle : MonoBehaviour
     {
         // TODO make this work cross-platform
         // TODO make this scale with frame rate
+        // TODO make this button input instead of mouse (twin-stick style)
         Transform intentTransform = intent.transform;
 
         float newX = (intentTransform.position.x + Input.GetAxis("Mouse X")) * mouseSensitivity;
