@@ -14,8 +14,16 @@ public class Reticle : MonoBehaviour
     PlayerShip playerController;
     GameObject mainCamera;
 
-    GameObject intent;
+    GameObject intentRotation;
+    GameObject intentPosition;
     GameObject aim;
+
+    // TODO this way of making the controls conform to the perspective of the camera doesn't feel right, make it better
+    // These vectors correspond to the directions relative to the camera
+    private Vector3 cameraForward;
+    private Vector3 cameraBack;
+    private Vector3 cameraRight;
+    private Vector3 cameraLeft;
 
     void Start()
     {
@@ -23,10 +31,27 @@ public class Reticle : MonoBehaviour
         playerController = player.GetComponent<PlayerShip>();
         mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        // TODO fix the reticle "flicking" to the center because of cursor locking
         CreateIntentReticle();
         CreateAimReticle();
 
-        Cursor.visible = false;
+        SetUpCameraDirections();
+    }
+
+    private void SetUpCameraDirections()
+    {
+        GameObject cameraCompass = new GameObject("Camera Compass");
+        // "Correct" the compass so that it lies flat in the game plane
+        cameraCompass.transform.eulerAngles = new Vector3(0, GameObject.FindGameObjectWithTag("MainCamera").transform.eulerAngles.y, 0);
+
+        cameraForward = cameraCompass.transform.forward;
+        cameraBack = -cameraCompass.transform.forward;
+        cameraRight = cameraCompass.transform.right;
+        cameraLeft = -cameraCompass.transform.right;
+
+        // Destroy(cameraCompass); // We don't need the Compass anymore!
     }
 
     private void CreateIntentReticle()
@@ -40,11 +65,18 @@ public class Reticle : MonoBehaviour
 
         intentReticle.transform.rotation = Quaternion.Euler(90, 0, 0); // Correct the rotation so the sprite is "flat"
 
-        // The "intent" GameObject exists so that the reticle can be made to "face" the ship while it's Z-rotation is weird
-        intent = new GameObject("Intent");
-        intentReticle.transform.position = new Vector3(0, 0, 0);
+        // The "intentRotation" GameObject exists so that the reticle can be made to "face" the ship while it's Z-rotation is weird
+        intentRotation = new GameObject("Intent Rotation");
+        intentRotation.transform.position = new Vector3(0, 0, 0);
 
-        intentReticle.transform.SetParent(intent.transform);
+        intentReticle.transform.SetParent(intentRotation.transform);
+
+        // The "intentPosition" is used so that the reticle can be moved relative to the camera's facing regardless of it's rotation
+        intentPosition = new GameObject("Intent Position");
+        intentPosition.transform.position = new Vector3(0, 0, 0);
+        intentPosition.transform.eulerAngles = new Vector3(0, GameObject.FindGameObjectWithTag("MainCamera").transform.eulerAngles.y, 0);
+
+        intentRotation.transform.SetParent(intentPosition.transform);
     }
 
     private void CreateAimReticle()
@@ -67,7 +99,7 @@ public class Reticle : MonoBehaviour
 
     void Update()
     {
-        MoveIntentReticle();
+        MoveIntentReticle(); // TODO this method should only be called IF the mouse moves
         MoveAimReticle();
         ClampReticlesWithinView();
         AdjustPlayerAim();
@@ -76,10 +108,10 @@ public class Reticle : MonoBehaviour
     private void ClampReticlesWithinView()
     {
         // TODO how does this work?
-        Vector3 intentPos = Camera.main.WorldToViewportPoint(intent.transform.position);
+        Vector3 intentPos = Camera.main.WorldToViewportPoint(intentRotation.transform.position);
         intentPos.x = Mathf.Clamp01(intentPos.x);
         intentPos.y = Mathf.Clamp01(intentPos.y);
-        intent.transform.position = Camera.main.ViewportToWorldPoint(intentPos);
+        intentRotation.transform.position = Camera.main.ViewportToWorldPoint(intentPos);
 
         Vector3 aimPos = Camera.main.WorldToViewportPoint(aim.transform.position);
         aimPos.x = Mathf.Clamp01(aimPos.x);
@@ -91,21 +123,22 @@ public class Reticle : MonoBehaviour
     {
         // TODO make this work cross-platform
         // TODO make this scale with frame rate
-        // TODO make this button input instead of mouse (twin-stick style)
-        Transform intentTransform = intent.transform;
+        // TODO make this move relative to the isometric view
+        Transform positionTransform = intentPosition.transform;
+        Transform rotationTransform = intentRotation.transform;
 
-        float newX = (intentTransform.position.x + Input.GetAxis("Mouse X")) * mouseSensitivity;
-        float newZ = (intentTransform.position.z + Input.GetAxis("Mouse Y")) * mouseSensitivity;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        intentTransform.position = new Vector3(newX, 0, newZ);
+        positionTransform.position = new Vector3(positionTransform.position.x + mouseX, 0 , positionTransform.position.z + mouseY);
 
-        intentTransform.transform.LookAt(player.transform);
+        rotationTransform.transform.LookAt(player.transform);
     }
 
     private void MoveAimReticle()
     {
         Vector3 currentPosition = aim.transform.position;
-        Vector3 intentReticlePosition = intent.transform.position;
+        Vector3 intentReticlePosition = intentRotation.transform.position;
 
         Vector3 newPosition = Vector3.MoveTowards(currentPosition, intentReticlePosition, playerController.rotationSpeed);
 

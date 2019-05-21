@@ -18,10 +18,32 @@ public class PlayerShip : MonoBehaviour
     private Rigidbody shipRigidbody;
     private ParticleSystem.EmissionModule gunEmission;
 
+    // These vectors correspond to the directions relative to the camera
+    private Vector3 cameraForward;
+    private Vector3 cameraBack;
+    private Vector3 cameraRight;
+    private Vector3 cameraLeft;
+
     void Start()
     {
         shipRigidbody = ship.GetComponent<Rigidbody>();
         gunEmission = gun.emission;
+
+        SetUpCameraDirections();
+    }
+
+    private void SetUpCameraDirections()
+    {
+        GameObject cameraCompass = new GameObject("Camera Compass");
+        // "Correct" the compass so that it lies flat in the game plane
+        cameraCompass.transform.eulerAngles = new Vector3(0, GameObject.FindGameObjectWithTag("MainCamera").transform.eulerAngles.y, 0);
+
+        cameraForward = cameraCompass.transform.forward;
+        cameraBack = -cameraCompass.transform.forward;
+        cameraRight = cameraCompass.transform.right;
+        cameraLeft = -cameraCompass.transform.right;
+
+        Destroy(cameraCompass); // We don't need the Compass anymore!
     }
 
     void Update()
@@ -34,10 +56,10 @@ public class PlayerShip : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1")) { Fire(); }
 
-        if (Input.GetKey(KeyCode.A)) { Thrust(Vector3.left); }
-        if (Input.GetKey(KeyCode.D)) { Thrust(Vector3.right); }
-        if (Input.GetKey(KeyCode.W)) { Thrust(Vector3.forward); }
-        if (Input.GetKey(KeyCode.S)) { Thrust(Vector3.back); }
+        if (Input.GetKey(KeyCode.A)) { Thrust(cameraLeft); }
+        if (Input.GetKey(KeyCode.D)) { Thrust(cameraRight); }
+        if (Input.GetKey(KeyCode.W)) { Thrust(cameraForward); }
+        if (Input.GetKey(KeyCode.S)) { Thrust(cameraBack); }
     }
 
     private void Fire()
