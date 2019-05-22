@@ -123,14 +123,14 @@ public class Reticle : MonoBehaviour
     {
         // TODO make this work cross-platform
         // TODO make this scale with frame rate
-        // TODO make this move relative to the isometric view
+        // TODO fix reticle moving into Y-plane
         Transform positionTransform = intentPosition.transform;
         Transform rotationTransform = intentRotation.transform;
 
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        positionTransform.position = new Vector3(positionTransform.position.x + mouseX, 0 , positionTransform.position.z + mouseY);
+        positionTransform.Translate(new Vector3(mouseX, 0, mouseY));
 
         rotationTransform.transform.LookAt(player.transform);
     }
