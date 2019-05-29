@@ -7,16 +7,25 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    [Header("Behavior")]
     [SerializeField] int hitPoints = 5;
-    [SerializeField] float thrustForce = 500f;
-    [SerializeField] float maxSpeed = 8f;
-    [SerializeField] float minimumAnchorSpeed = 0.5f;
-    [SerializeField][Tooltip("In radians per second.")] float rotationSpeed = 100f;
     [SerializeField] float aggroRange = 12f;
     [SerializeField] float attackRange = 6f;
 
-    ParticleSystem gun;
+    [Header("Ship Properties")]
+    [SerializeField][Tooltip("In radians per second.")] float rotationSpeed = 100f;
+    [SerializeField] float thrustForce = 500f;
+    [SerializeField] float maxSpeed = 8f;
+    [SerializeField] float minimumAnchorSpeed = 0.5f;
+
+    [Header("Weapon Properties")]
+    [SerializeField] ParticleSystem gun;
+    [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
+
+    private ParticleSystem.EmissionModule gunEmission;
     private Rigidbody shipRigidbody;
+
+    bool attacking = false;
 
     GameObject player;
 
@@ -24,6 +33,7 @@ public class Enemy : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         shipRigidbody = GetComponent<Rigidbody>();
+        gunEmission = gun.emission;
     }
 
     void Update()
@@ -33,17 +43,35 @@ public class Enemy : MonoBehaviour
             RotateTowards(player.transform);
 
             if (DistanceToPlayer() >= attackRange) 
-            { 
+            {
+                if (attacking == true)
+                {
+                    CancelInvoke();
+                    attacking = false;
+                }
                 Thrust(Vector3.forward);
             }
             else
             {
+                if (DistanceToPlayer() <= attackRange)
+                {
+                    if (attacking == false)
+                    {
+                        InvokeRepeating("Attack", 0f, 60f / fireRate);
+                        attacking = true;
+                    }
+                }
                 if (shipRigidbody.velocity.magnitude > minimumAnchorSpeed)
                 {
                     Thrust(Vector3.back);
                 }
             }
         }
+    }
+
+    private void Attack()
+    {
+        gun.Emit(1);
     }
 
     private void RotateTowards(Transform target)

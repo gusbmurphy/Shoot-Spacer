@@ -10,10 +10,13 @@ public class PlayerShip : MonoBehaviour
 {
     [Header("Ship Properties")]
     [SerializeField] GameObject ship;
-    [SerializeField] ParticleSystem gun;
     [SerializeField] float thrustForce = 100f;
-    [SerializeField] float maxSpeed = 10;
+    [SerializeField] float maxSpeed = 10f;
     [SerializeField] public float rotationSpeed = 5f;
+
+    [Header("Weapon Properties")]
+    [SerializeField] ParticleSystem gun;
+    [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
 
     private Rigidbody shipRigidbody;
     private ParticleSystem.EmissionModule gunEmission;
@@ -54,7 +57,16 @@ public class PlayerShip : MonoBehaviour
 
     private void CheckForInput()
     {
-        if (Input.GetButtonDown("Fire1")) { Fire(); }
+        // TODO is there a better way to get this firing done than InvokeRepeating? Same goes for the enemies
+        if (Input.GetButtonDown("Fire1"))
+        {
+            InvokeRepeating("Fire", 0f, 60f / fireRate);
+        }
+        else if (Input.GetButtonUp("Fire1"))
+        {
+            CancelInvoke();
+        }
+
 
         if (Input.GetKey(KeyCode.A)) { Thrust(cameraLeft); }
         if (Input.GetKey(KeyCode.D)) { Thrust(cameraRight); }
