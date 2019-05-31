@@ -9,7 +9,7 @@ using UnityEngine.Assertions;
 public class PlayerShip : MonoBehaviour
 {
     [Header("Ship Properties")]
-    [SerializeField] GameObject ship;
+    [SerializeField] int hitPoints = 10;
     [SerializeField] float thrustForce = 100f;
     [SerializeField] float maxSpeed = 10f;
     [SerializeField] public float rotationSpeed = 5f;
@@ -29,7 +29,7 @@ public class PlayerShip : MonoBehaviour
 
     void Start()
     {
-        shipRigidbody = ship.GetComponent<Rigidbody>();
+        shipRigidbody = GetComponent<Rigidbody>();
         gunEmission = gun.emission;
 
         SetUpCameraDirections();
@@ -89,6 +89,21 @@ public class PlayerShip : MonoBehaviour
         if (shipRigidbody.velocity.magnitude > maxSpeed)
         {
             shipRigidbody.velocity = Vector3.ClampMagnitude(shipRigidbody.velocity, maxSpeed);
+        }
+    }
+
+    // TODO move towards Interface-based damaging
+    private void OnParticleCollision(GameObject other)
+    {
+        hitPoints--;
+        print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");
+        // TODO give visual hit feedback
+        if (hitPoints < 1)
+        {
+            print(gameObject.name + " was destroyed.");
+            Destroy(this.gameObject);
+            // TODO give visual destruction feedback
+            // TODO make a game end state
         }
     }
 }

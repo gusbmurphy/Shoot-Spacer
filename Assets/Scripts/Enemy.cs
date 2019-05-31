@@ -19,15 +19,18 @@ public class Enemy : MonoBehaviour
     [SerializeField] float minimumAnchorSpeed = 0.5f;
 
     [Header("Weapon Properties")]
-    [SerializeField] ParticleSystem gun;
+    [SerializeField] ParticleSystem gun = null;
     [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
+
+    [Header("Effects")]
+    [SerializeField] ParticleSystem damageEffect = null;
 
     private ParticleSystem.EmissionModule gunEmission;
     private Rigidbody shipRigidbody;
 
     bool attacking = false;
 
-    GameObject player;
+    GameObject player; // TODO when the player is destroyed what happens to this?
 
     void Start()
     {
@@ -96,6 +99,10 @@ public class Enemy : MonoBehaviour
 
     private void OnParticleCollision(GameObject other)
     {
+        // TODO make particles spawn where the enemy's been hit
+        var currentEffect = Instantiate(damageEffect, transform.position, Quaternion.identity);
+        Destroy(currentEffect.gameObject, currentEffect.main.duration);
+
         hitPoints--;
         print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");
         // TODO give visual hit feedback

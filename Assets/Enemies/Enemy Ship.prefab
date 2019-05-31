@@ -65,13 +65,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints: 5
+  aggroRange: 20
+  attackRange: 10
+  rotationSpeed: 100
   thrustForce: 500
   maxSpeed: 8
   minimumAnchorSpeed: 0.5
-  rotationSpeed: 100
-  aggroRange: 20
-  attackRange: 10
   gun: {fileID: 1783279581000565081}
+  fireRate: 90
+  damageEffect: {fileID: 3957038825069844355, guid: 973564e8cc0154593900d06ea412255c,
+    type: 3}
 --- !u!1 &6558768906652855003
 GameObject:
   m_ObjectHideFlags: 0
