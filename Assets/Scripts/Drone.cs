@@ -18,7 +18,6 @@ public class Drone : MonoBehaviour
 
     ParticleSystem gun;
     private Rigidbody shipRigidbody;
-
     GameObject player;
 
     void Start()

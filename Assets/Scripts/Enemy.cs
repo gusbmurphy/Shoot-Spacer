@@ -5,7 +5,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDamageable
 {
     [Header("Behavior")]
     [SerializeField] int hitPoints = 5;
@@ -19,7 +19,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] float minimumAnchorSpeed = 0.5f;
 
     [Header("Weapon Properties")]
-    [SerializeField] ParticleSystem gun = null;
+    [SerializeField] GameObject attackProjectile;
+    [SerializeField] GameObject projectileSocket;
     [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
 
     [Header("Effects")]
@@ -36,7 +37,6 @@ public class Enemy : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         shipRigidbody = GetComponent<Rigidbody>();
-        gunEmission = gun.emission;
     }
 
     void Update()
@@ -60,7 +60,7 @@ public class Enemy : MonoBehaviour
                 {
                     if (attacking == false)
                     {
-                        InvokeRepeating("Attack", 0f, 60f / fireRate);
+                        InvokeRepeating("Fire", 0f, 60f / fireRate);
                         attacking = true;
                     }
                 }
@@ -72,9 +72,13 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void Attack()
+    private void Fire()
     {
-        gun.Emit(1);
+        GameObject projectileObject = Instantiate(attackProjectile, projectileSocket.transform.position, projectileSocket.transform.rotation);
+        Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
+
+        Vector3 unitVectorToPlayer = (player.transform.position - projectileSocket.transform.position).normalized;
+        projectileObject.GetComponent<Rigidbody>().velocity = unitVectorToPlayer * projectileComponent.projectileSpeed;
     }
 
     private void RotateTowards(Transform target)
@@ -92,20 +96,15 @@ public class Enemy : MonoBehaviour
 
     private float DistanceToPlayer() { return Vector3.Distance(transform.position, player.transform.position); }
 
-    private void Thrust(Vector3 direction)
-    {
-        shipRigidbody.AddRelativeForce(direction * thrustForce * Time.deltaTime);
-    }
+    private void Thrust(Vector3 direction) { shipRigidbody.AddRelativeForce(direction * thrustForce * Time.deltaTime); }
 
-    private void OnParticleCollision(GameObject other)
+    void IDamageable.TakeDamage(int damage)
     {
-        // TODO make particles spawn where the enemy's been hit
         var currentEffect = Instantiate(damageEffect, transform.position, Quaternion.identity);
         Destroy(currentEffect.gameObject, currentEffect.main.duration);
 
-        hitPoints--;
+        hitPoints -= damage;
         print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");
-        // TODO give visual hit feedback
         if (hitPoints < 1)
         {
             print(gameObject.name + " was destroyed.");

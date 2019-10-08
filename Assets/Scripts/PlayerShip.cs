@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 
 [RequireComponent(typeof(Rigidbody))]
 
-public class PlayerShip : MonoBehaviour
+public class PlayerShip : MonoBehaviour, IDamageable
 {
     [Header("Ship Properties")]
     [SerializeField] int hitPoints = 10;
@@ -15,7 +15,8 @@ public class PlayerShip : MonoBehaviour
     [SerializeField] public float rotationSpeed = 5f;
 
     [Header("Weapon Properties")]
-    [SerializeField] ParticleSystem gun;
+    [SerializeField] GameObject attackProjectile;
+    [SerializeField] GameObject projectileSocket;
     [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
 
     private Rigidbody shipRigidbody;
@@ -30,11 +31,10 @@ public class PlayerShip : MonoBehaviour
     void Start()
     {
         shipRigidbody = GetComponent<Rigidbody>();
-        gunEmission = gun.emission;
-
         SetUpCameraDirections();
     }
 
+    // SetUpCameraDirections() does the work of finding the camera and ensuring that the player controls move relative to the camera's perspective
     private void SetUpCameraDirections()
     {
         GameObject cameraCompass = new GameObject("Camera Compass");
@@ -67,8 +67,7 @@ public class PlayerShip : MonoBehaviour
             CancelInvoke();
         }
 
-
-        if (Input.GetKey(KeyCode.A)) { Thrust(cameraLeft); }
+        if (Input.GetKey(KeyCode.A)) { Thrust(cameraLeft); print("Thrusting left"); }
         if (Input.GetKey(KeyCode.D)) { Thrust(cameraRight); }
         if (Input.GetKey(KeyCode.W)) { Thrust(cameraForward); }
         if (Input.GetKey(KeyCode.S)) { Thrust(cameraBack); }
@@ -76,7 +75,11 @@ public class PlayerShip : MonoBehaviour
 
     private void Fire()
     {
-        gun.Emit(1);
+        GameObject projectileObject = Instantiate(attackProjectile, projectileSocket.transform.position, projectileSocket.transform.rotation);
+        Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
+
+        Vector3 unitDirectionVector = projectileSocket.transform.position.normalized;
+        projectileObject.GetComponent<Rigidbody>().velocity = unitDirectionVector * projectileComponent.projectileSpeed;
     }
 
     public void Thrust(Vector3 direction)
@@ -92,8 +95,7 @@ public class PlayerShip : MonoBehaviour
         }
     }
 
-    // TODO move towards Interface-based damaging
-    private void OnParticleCollision(GameObject other)
+    void IDamageable.TakeDamage(int damage)
     {
         hitPoints--;
         print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");
