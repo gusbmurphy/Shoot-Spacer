@@ -8,13 +8,18 @@ using UnityEngine.Assertions;
 
 public class PlayerShip : MonoBehaviour, IDamageable
 {
-    [Header("Ship Properties")]
+    [Header("Ship")]
     [SerializeField] int hitPoints = 10;
+
+    [Header("Movement")]
     [SerializeField] float thrustForce = 100f;
     [SerializeField] float maxSpeed = 10f;
     [SerializeField] public float rotationSpeed = 5f;
+    [SerializeField] float dashForceMultiplier = 5f;
+    [SerializeField] [Tooltip("In milliseconds.")] int dashCooldown = 3000;
+    [SerializeField] [Tooltip("Maximum milliseconds elapsed between consecutive key presses to dash.")] int dashThreshhold = 1000;
 
-    [Header("Weapon Properties")]
+    [Header("Weapon")]
     [SerializeField] GameObject attackProjectile;
     [SerializeField] GameObject projectileSocket;
     [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
@@ -27,6 +32,8 @@ public class PlayerShip : MonoBehaviour, IDamageable
     private Vector3 cameraBack;
     private Vector3 cameraRight;
     private Vector3 cameraLeft;
+
+    private KeyCode[] movementKeyCodes = { KeyCode.W, KeyCode.A, KeyCode.S, KeyCode.D };
 
     void Start()
     {
@@ -67,10 +74,73 @@ public class PlayerShip : MonoBehaviour, IDamageable
             CancelInvoke();
         }
 
-        if (Input.GetKey(KeyCode.A)) { Thrust(cameraLeft); print("Thrusting left"); }
-        if (Input.GetKey(KeyCode.D)) { Thrust(cameraRight); }
-        if (Input.GetKey(KeyCode.W)) { Thrust(cameraForward); }
-        if (Input.GetKey(KeyCode.S)) { Thrust(cameraBack); }
+        CheckForThrust();
+
+        foreach (KeyCode key in movementKeyCodes) if (Input.GetKeyDown(key)) CheckForDash(key);
+    }
+
+    private KeyCode dashKey = KeyCode.F; // The 'F' KeyCode is used to represent an empty dashKey
+    private DateTime dashKeyPressTime;
+    private DateTime lastDashTime = new DateTime(1991, 12, 14); // Just an arbitrary DateTime to start with
+
+    private void CheckForDash(KeyCode key)
+    {
+        if (key != dashKey)
+        {
+            dashKey = key;
+            dashKeyPressTime = DateTime.Now;
+        }
+        else if (CheckDashTimes()) Dash(key);
+    }
+
+    private bool CheckDashTimes()
+    {
+        return DateTime.Now.Subtract(dashKeyPressTime).TotalMilliseconds < dashThreshhold
+                && DateTime.Now.Subtract(lastDashTime).TotalMilliseconds > dashCooldown;
+    }
+
+    private void Dash(KeyCode key)
+    {
+        switch(key)
+        {
+            case KeyCode.W:
+                Thrust(cameraForward, thrustForce * dashForceMultiplier);
+                break;
+            case KeyCode.A:
+                Thrust(cameraLeft, thrustForce * dashForceMultiplier);
+                break;
+            case KeyCode.S:
+                Thrust(cameraBack, thrustForce * dashForceMultiplier);
+                break;
+            case KeyCode.D:
+                Thrust(cameraRight, thrustForce * dashForceMultiplier);
+                break;
+            default:
+                throw new Exception("Invalid KeyCode passed to Dash().");
+        }
+
+        lastDashTime = DateTime.Now;
+        dashKey = KeyCode.F;
+    }
+
+    private void CheckForThrust()
+    {
+        if (Input.GetKey(KeyCode.A))
+        {
+            Thrust(cameraLeft);
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            Thrust(cameraRight);
+        }
+        if (Input.GetKey(KeyCode.W))
+        {
+            Thrust(cameraForward);
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            Thrust(cameraBack);
+        }
     }
 
     private void Fire()
@@ -78,13 +148,19 @@ public class PlayerShip : MonoBehaviour, IDamageable
         GameObject projectileObject = Instantiate(attackProjectile, projectileSocket.transform.position, projectileSocket.transform.rotation);
         Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
 
-        Vector3 unitDirectionVector = projectileSocket.transform.position.normalized;
+        Vector3 unitDirectionVector = (projectileSocket.transform.position - transform.position).normalized;
         projectileObject.GetComponent<Rigidbody>().velocity = unitDirectionVector * projectileComponent.projectileSpeed;
     }
 
     public void Thrust(Vector3 direction)
     {
         shipRigidbody.AddForce(direction * thrustForce * Time.deltaTime);
+    }
+
+    public void Thrust(Vector3 direction, float force)
+    {
+        print("Dashing.");
+        shipRigidbody.AddForce(direction * force);
     }
 
     private void ClampSpeed()

@@ -9,6 +9,7 @@ public class Reticle : MonoBehaviour
     [SerializeField][Tooltip("Graphic for player intended facing.")] Sprite intentSprite;
     [SerializeField][Tooltip("Graphic for actual ship facing.")] Sprite aimSprite;
     [SerializeField] Vector2 cursorHotspot = new Vector2(0, 0);
+    [SerializeField] float initialDistanceFromPlayer = 5f;
 
     GameObject player = null;
     PlayerShip playerController;
@@ -16,9 +17,8 @@ public class Reticle : MonoBehaviour
 
     GameObject intentRotation;
     GameObject intentPosition;
-    GameObject aim;
+    GameObject aimPosition;
 
-    // TODO this way of making the controls conform to the perspective of the camera doesn't feel right, make it better
     // These vectors correspond to the directions relative to the camera
     private Vector3 cameraForward;
     private Vector3 cameraBack;
@@ -31,11 +31,12 @@ public class Reticle : MonoBehaviour
         playerController = player.GetComponent<PlayerShip>();
         mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 
+        Vector3 initialReticlePosition = player.transform.position + new Vector3(0, 0, initialDistanceFromPlayer);
+
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        // TODO fix the reticle "flicking" to the center because of cursor locking
-        CreateIntentReticle();
-        CreateAimReticle();
+        CreateIntentReticle(initialReticlePosition);
+        CreateAimReticle(initialReticlePosition);
 
         SetUpCameraDirections();
     }
@@ -51,13 +52,13 @@ public class Reticle : MonoBehaviour
         cameraRight = cameraCompass.transform.right;
         cameraLeft = -cameraCompass.transform.right;
 
-        // Destroy(cameraCompass); // We don't need the Compass anymore!
+        Destroy(cameraCompass); // We don't need the Compass anymore!
     }
 
-    private void CreateIntentReticle()
+    private void CreateIntentReticle(Vector3 initialPosition)
     {
         GameObject intentReticle = new GameObject("Intent Reticle");
-        intentReticle.transform.position = new Vector3(0, 0, 0);
+        intentReticle.transform.position = initialPosition;
         intentReticle.transform.localScale = new Vector3(.25f, .25f, 1f); // TODO is this the only way to make the sprite look rite?
 
         SpriteRenderer intentReticleSR = intentReticle.AddComponent<SpriteRenderer>();
@@ -67,22 +68,23 @@ public class Reticle : MonoBehaviour
 
         // The "intentRotation" GameObject exists so that the reticle can be made to "face" the ship while it's Z-rotation is weird
         intentRotation = new GameObject("Intent Rotation");
-        intentRotation.transform.position = new Vector3(0, 0, 0);
+        intentRotation.transform.position = initialPosition;
 
         intentReticle.transform.SetParent(intentRotation.transform);
 
         // The "intentPosition" is used so that the reticle can be moved relative to the camera's facing regardless of it's rotation
         intentPosition = new GameObject("Intent Position");
-        intentPosition.transform.position = new Vector3(0, 0, 0);
+        intentPosition.transform.position = initialPosition;
         intentPosition.transform.eulerAngles = new Vector3(0, GameObject.FindGameObjectWithTag("MainCamera").transform.eulerAngles.y, 0);
 
+        intentPosition.transform.SetParent(mainCamera.transform); // The position object's parent is set to the main camera so that as the camera moves, the reticle moves with it
         intentRotation.transform.SetParent(intentPosition.transform);
     }
 
-    private void CreateAimReticle()
+    private void CreateAimReticle(Vector3 initialPosition)
     {
         GameObject aimReticle = new GameObject("Aim Reticle");
-        aimReticle.transform.position = new Vector3(0, 0, 0);
+        aimReticle.transform.position = initialPosition;
         aimReticle.transform.localScale = new Vector3(.25f, .25f, 1f); // TODO is this the only way to make the sprite look rite?
 
         SpriteRenderer aimReticleSR = aimReticle.AddComponent<SpriteRenderer>();
@@ -91,10 +93,11 @@ public class Reticle : MonoBehaviour
         aimReticle.transform.rotation = Quaternion.Euler(90, 0, 0); // Correct the rotation so the sprite is "flat"
 
         // The "intent" GameObject exists so that the reticle can be made to "face" the ship while it's Z-rotation is weird
-        aim = new GameObject("Aim");
-        aimReticle.transform.position = new Vector3(0, 0, 0);
+        aimPosition = new GameObject("Aim Position");
+        aimPosition.transform.position = initialPosition;
 
-        aimReticle.transform.SetParent(aim.transform);
+        aimPosition.transform.SetParent(mainCamera.transform); // The position object's parent is set to the main camera so that as the camera moves, the reticle moves with it
+        aimReticle.transform.SetParent(aimPosition.transform);
     }
 
     void Update()
@@ -102,6 +105,10 @@ public class Reticle : MonoBehaviour
         MoveIntentReticle(); // TODO this method should only be called IF the mouse moves
         MoveAimReticle();
         ClampReticlesWithinView();
+    }
+
+    private void LateUpdate()
+    {
         AdjustPlayerAim();
     }
 
@@ -113,17 +120,16 @@ public class Reticle : MonoBehaviour
         intentPos.y = Mathf.Clamp01(intentPos.y);
         intentRotation.transform.position = Camera.main.ViewportToWorldPoint(intentPos);
 
-        Vector3 aimPos = Camera.main.WorldToViewportPoint(aim.transform.position);
+        Vector3 aimPos = Camera.main.WorldToViewportPoint(aimPosition.transform.position);
         aimPos.x = Mathf.Clamp01(aimPos.x);
         aimPos.y = Mathf.Clamp01(aimPos.y);
-        aim.transform.position = Camera.main.ViewportToWorldPoint(aimPos);
+        aimPosition.transform.position = Camera.main.ViewportToWorldPoint(aimPos);
     }
 
     private void MoveIntentReticle()
     {
         // TODO make this work cross-platform
         // TODO make this scale with frame rate
-        // TODO fix reticle moving into Y-plane
         Transform positionTransform = intentPosition.transform;
         Transform rotationTransform = intentRotation.transform;
 
@@ -137,17 +143,17 @@ public class Reticle : MonoBehaviour
 
     private void MoveAimReticle()
     {
-        Vector3 currentPosition = aim.transform.position;
+        Vector3 currentPosition = aimPosition.transform.position;
         Vector3 intentReticlePosition = intentRotation.transform.position;
 
         Vector3 newPosition = Vector3.MoveTowards(currentPosition, intentReticlePosition, playerController.rotationSpeed);
 
-        aim.transform.position = newPosition;
-        aim.transform.LookAt(player.transform);
+        aimPosition.transform.position = newPosition;
+        aimPosition.transform.LookAt(player.transform);
     }
 
     private void AdjustPlayerAim()
     {
-        player.transform.LookAt(aim.transform);
+        player.transform.LookAt(aimPosition.transform);
     }
 }

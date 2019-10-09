@@ -24,7 +24,7 @@ public class Enemy : MonoBehaviour, IDamageable
     [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
 
     [Header("Effects")]
-    [SerializeField] ParticleSystem damageEffect = null;
+    // [SerializeField] ParticleSystem damageEffect = null;
 
     private ParticleSystem.EmissionModule gunEmission;
     private Rigidbody shipRigidbody;
@@ -100,8 +100,8 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void IDamageable.TakeDamage(int damage)
     {
-        var currentEffect = Instantiate(damageEffect, transform.position, Quaternion.identity);
-        Destroy(currentEffect.gameObject, currentEffect.main.duration);
+        // var currentEffect = Instantiate(damageEffect, transform.position, Quaternion.identity);
+        // Destroy(currentEffect.gameObject, currentEffect.main.duration);
 
         hitPoints -= damage;
         print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");

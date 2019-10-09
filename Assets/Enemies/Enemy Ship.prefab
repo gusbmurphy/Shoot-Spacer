@@ -72,13 +72,10 @@ MonoBehaviour:
   thrustForce: 500
   maxSpeed: 8
   minimumAnchorSpeed: 0.5
-  gun: {fileID: 0}
   attackProjectile: {fileID: 3914578126973830527, guid: edcb7a7f5e7054b9284dba5fc1dc87c4,
     type: 3}
   projectileSocket: {fileID: 8805360372010307974}
-  fireRate: 90
-  damageEffect: {fileID: 3957038825069844355, guid: 973564e8cc0154593900d06ea412255c,
-    type: 3}
+  fireRate: 250
 --- !u!65 &8789076312611782089
 BoxCollider:
   m_ObjectHideFlags: 0

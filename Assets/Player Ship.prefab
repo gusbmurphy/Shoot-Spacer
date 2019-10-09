@@ -280,8 +280,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints: 10
-  thrustForce: 800
-  maxSpeed: 10
+  thrustForce: 2500
+  maxSpeed: 20
   rotationSpeed: 1
   attackProjectile: {fileID: 3914578126973830527, guid: edcb7a7f5e7054b9284dba5fc1dc87c4,
     type: 3}

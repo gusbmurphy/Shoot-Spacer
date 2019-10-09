@@ -47,8 +47,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e22670d24a1234f1d8e19a7bcdec48fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectileSpeed: 25
+  projectileSpeed: 40
   damage: 1
+  lifeTime: 5
+  hitEffect: {fileID: 3957038825069844355, guid: 973564e8cc0154593900d06ea412255c,
+    type: 3}
 --- !u!33 &3914578126973830520
 MeshFilter:
   m_ObjectHideFlags: 0
