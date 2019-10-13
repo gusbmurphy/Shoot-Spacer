@@ -3,17 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO the player is able to move the reticle off of the screen through the bottom and into the vertical plane
+
 public class Reticle : MonoBehaviour
 {
-    [SerializeField] float mouseSensitivity = 1f;
+    [SerializeField] float mouseSensitivity = 10f;
     [SerializeField][Tooltip("Graphic for player intended facing.")] Sprite intentSprite;
     [SerializeField][Tooltip("Graphic for actual ship facing.")] Sprite aimSprite;
     [SerializeField] Vector2 cursorHotspot = new Vector2(0, 0);
     [SerializeField] float initialDistanceFromPlayer = 5f;
 
     GameObject player = null;
-    PlayerShip playerController;
-    GameObject mainCamera;
+    PlayerMovement playerMovement;
+    Camera mainCamera;
 
     GameObject intentRotation;
     GameObject intentPosition;
@@ -28,8 +30,8 @@ public class Reticle : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        playerController = player.GetComponent<PlayerShip>();
-        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+        playerMovement = player.GetComponent<PlayerMovement>();
+        mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 
         Vector3 initialReticlePosition = player.transform.position + new Vector3(0, 0, initialDistanceFromPlayer);
 
@@ -77,7 +79,7 @@ public class Reticle : MonoBehaviour
         intentPosition.transform.position = initialPosition;
         intentPosition.transform.eulerAngles = new Vector3(0, GameObject.FindGameObjectWithTag("MainCamera").transform.eulerAngles.y, 0);
 
-        intentPosition.transform.SetParent(mainCamera.transform); // The position object's parent is set to the main camera so that as the camera moves, the reticle moves with it
+        intentPosition.transform.SetParent(gameObject.transform);
         intentRotation.transform.SetParent(intentPosition.transform);
     }
 
@@ -96,15 +98,32 @@ public class Reticle : MonoBehaviour
         aimPosition = new GameObject("Aim Position");
         aimPosition.transform.position = initialPosition;
 
-        aimPosition.transform.SetParent(mainCamera.transform); // The position object's parent is set to the main camera so that as the camera moves, the reticle moves with it
+        aimPosition.transform.SetParent(gameObject.transform);
         aimReticle.transform.SetParent(aimPosition.transform);
     }
 
     void Update()
     {
-        MoveIntentReticle(); // TODO this method should only be called IF the mouse moves
-        MoveAimReticle();
-        ClampReticlesWithinView();
+        if (player)
+        {
+            MoveIntentReticle(); // TODO this method should only be called IF the mouse moves
+            MoveAimReticle();
+            ClampReticlesWithinView();
+            LockReticlesYPosition();
+        }
+        else
+        {
+            Destroy(intentPosition);
+            Destroy(intentRotation);
+            Destroy(aimPosition);
+        }
+    }
+
+    private void LockReticlesYPosition()
+    {
+        intentPosition.transform.position = new Vector3(intentPosition.transform.position.x, 0, intentPosition.transform.position.z);
+        intentRotation.transform.position = new Vector3(intentRotation.transform.position.x, 0, intentRotation.transform.position.z);
+        aimPosition.transform.position = new Vector3(aimPosition.transform.position.x, 0, aimPosition.transform.position.z);
     }
 
     private void LateUpdate()
@@ -129,16 +148,18 @@ public class Reticle : MonoBehaviour
     private void MoveIntentReticle()
     {
         // TODO make this work cross-platform
-        // TODO make this scale with frame rate
         Transform positionTransform = intentPosition.transform;
         Transform rotationTransform = intentRotation.transform;
 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        Vector3 newPosition = new Vector3(mouseX, 0, mouseY);
 
-        positionTransform.Translate(new Vector3(mouseX, 0, mouseY));
-
+        //if (CheckPositionInView(newPosition))
+        //{
+        positionTransform.Translate(newPosition);
         rotationTransform.transform.LookAt(player.transform);
+        //}
     }
 
     private void MoveAimReticle()
@@ -146,11 +167,17 @@ public class Reticle : MonoBehaviour
         Vector3 currentPosition = aimPosition.transform.position;
         Vector3 intentReticlePosition = intentRotation.transform.position;
 
-        Vector3 newPosition = Vector3.MoveTowards(currentPosition, intentReticlePosition, playerController.rotationSpeed);
+        Vector3 newPosition = Vector3.MoveTowards(currentPosition, intentReticlePosition, playerMovement.rotationSpeed);
 
         aimPosition.transform.position = newPosition;
         aimPosition.transform.LookAt(player.transform);
     }
+
+    //private bool CheckPositionInView(Vector3 target)
+    //{
+    //    Vector3 screenPoint = mainCamera.WorldToViewportPoint(target);
+    //    return screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
+    //}
 
     private void AdjustPlayerAim()
     {

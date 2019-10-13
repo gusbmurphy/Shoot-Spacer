@@ -11,7 +11,7 @@ public class Projectile : MonoBehaviour
 
     IEnumerator Start()
     {
-        yield return new WaitForSeconds(lifeTime);
+        yield return new WaitForSecondsRealtime(lifeTime);
         Destroy(this.gameObject);
     }
 

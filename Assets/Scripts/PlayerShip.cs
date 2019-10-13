@@ -13,11 +13,16 @@ public class PlayerShip : MonoBehaviour, IDamageable
 
     [Header("Movement")]
     [SerializeField] float thrustForce = 100f;
-    [SerializeField] float maxSpeed = 10f;
+    [SerializeField] float maxNormalSpeed = 10f;
+    private float currentMaxSpeed;
     [SerializeField] public float rotationSpeed = 5f;
-    [SerializeField] float dashForceMultiplier = 5f;
-    [SerializeField] [Tooltip("In milliseconds.")] int dashCooldown = 3000;
-    [SerializeField] [Tooltip("Maximum milliseconds elapsed between consecutive key presses to dash.")] int dashThreshhold = 1000;
+
+    //[Header("Dash")]
+    //[SerializeField] [Tooltip("Multiple of thrust force applied for dash.")] float dashForceMultiplier = 5f;
+    //[SerializeField] [Tooltip("In milliseconds.")] int dashDuration = 500;
+    //[SerializeField] float maxDashSpeed = 50f;
+    //[SerializeField] [Tooltip("In milliseconds.")] int dashCooldown = 3000;
+    //[SerializeField] [Tooltip("Maximum milliseconds elapsed between consecutive key presses to dash.")] int dashThreshhold = 1000;
 
     [Header("Weapon")]
     [SerializeField] GameObject attackProjectile;
@@ -39,6 +44,7 @@ public class PlayerShip : MonoBehaviour, IDamageable
     {
         shipRigidbody = GetComponent<Rigidbody>();
         SetUpCameraDirections();
+        currentMaxSpeed = maxNormalSpeed;
     }
 
     // SetUpCameraDirections() does the work of finding the camera and ensuring that the player controls move relative to the camera's perspective
@@ -65,63 +71,64 @@ public class PlayerShip : MonoBehaviour, IDamageable
     private void CheckForInput()
     {
         // TODO is there a better way to get this firing done than InvokeRepeating? Same goes for the enemies
-        if (Input.GetButtonDown("Fire1"))
-        {
-            InvokeRepeating("Fire", 0f, 60f / fireRate);
-        }
-        else if (Input.GetButtonUp("Fire1"))
-        {
-            CancelInvoke();
-        }
+        if (Input.GetButtonDown("Fire1")) InvokeRepeating("Fire", 0f, 60f / fireRate);
+        else if (Input.GetButtonUp("Fire1")) CancelInvoke();
 
         CheckForThrust();
 
-        foreach (KeyCode key in movementKeyCodes) if (Input.GetKeyDown(key)) CheckForDash(key);
+        //foreach (KeyCode key in movementKeyCodes) if (Input.GetKeyDown(key)) CheckForDash(key);
     }
 
-    private KeyCode dashKey = KeyCode.F; // The 'F' KeyCode is used to represent an empty dashKey
-    private DateTime dashKeyPressTime;
-    private DateTime lastDashTime = new DateTime(1991, 12, 14); // Just an arbitrary DateTime to start with
+    //private KeyCode dashKey = KeyCode.F; // The 'F' KeyCode is used to represent an empty dashKey
+    //private DateTime dashKeyPressTime;
+    //private DateTime lastDashTime = new DateTime(1991, 12, 14); // Just an arbitrary DateTime to start with
 
-    private void CheckForDash(KeyCode key)
-    {
-        if (key != dashKey)
-        {
-            dashKey = key;
-            dashKeyPressTime = DateTime.Now;
-        }
-        else if (CheckDashTimes()) Dash(key);
-    }
+    //private void CheckForDash(KeyCode key)
+    //{
+    //    if (key != dashKey)
+    //    {
+    //        dashKey = key;
+    //        dashKeyPressTime = DateTime.Now;
+    //    }
+    //    else if (CheckDashTimes()) Dash(key);
+    //}
 
-    private bool CheckDashTimes()
-    {
-        return DateTime.Now.Subtract(dashKeyPressTime).TotalMilliseconds < dashThreshhold
-                && DateTime.Now.Subtract(lastDashTime).TotalMilliseconds > dashCooldown;
-    }
+    //private bool CheckDashTimes()
+    //{
+    //    return DateTime.Now.Subtract(dashKeyPressTime).TotalMilliseconds < dashThreshhold
+    //            && DateTime.Now.Subtract(lastDashTime).TotalMilliseconds > dashCooldown;
+    //}
 
-    private void Dash(KeyCode key)
-    {
-        switch(key)
-        {
-            case KeyCode.W:
-                Thrust(cameraForward, thrustForce * dashForceMultiplier);
-                break;
-            case KeyCode.A:
-                Thrust(cameraLeft, thrustForce * dashForceMultiplier);
-                break;
-            case KeyCode.S:
-                Thrust(cameraBack, thrustForce * dashForceMultiplier);
-                break;
-            case KeyCode.D:
-                Thrust(cameraRight, thrustForce * dashForceMultiplier);
-                break;
-            default:
-                throw new Exception("Invalid KeyCode passed to Dash().");
-        }
+    //private void Dash(KeyCode key)
+    //{
+    //    switch(key)
+    //    {
+    //        case KeyCode.W:
+    //            Thrust(cameraForward, thrustForce * dashForceMultiplier);
+    //            break;
+    //        case KeyCode.A:
+    //            Thrust(cameraLeft, thrustForce * dashForceMultiplier);
+    //            break;
+    //        case KeyCode.S:
+    //            Thrust(cameraBack, thrustForce * dashForceMultiplier);
+    //            break;
+    //        case KeyCode.D:
+    //            Thrust(cameraRight, thrustForce * dashForceMultiplier);
+    //            break;
+    //        default:
+    //            throw new Exception("Invalid KeyCode passed to Dash().");
+    //    }
 
-        lastDashTime = DateTime.Now;
-        dashKey = KeyCode.F;
-    }
+    //    lastDashTime = DateTime.Now;
+    //    dashKey = KeyCode.F;
+    //}
+
+    //private IEnumerator OpenSpeedClampForDash()
+    //{
+    //    currentMaxSpeed = maxDashSpeed;
+    //    yield return new WaitForSecondsRealtime(dashDuration / 1000f);
+    //    currentMaxSpeed = maxNormalSpeed;
+    //}
 
     private void CheckForThrust()
     {
@@ -165,9 +172,9 @@ public class PlayerShip : MonoBehaviour, IDamageable
 
     private void ClampSpeed()
     {
-        if (shipRigidbody.velocity.magnitude > maxSpeed)
+        if (shipRigidbody.velocity.magnitude > maxNormalSpeed)
         {
-            shipRigidbody.velocity = Vector3.ClampMagnitude(shipRigidbody.velocity, maxSpeed);
+            shipRigidbody.velocity = Vector3.ClampMagnitude(shipRigidbody.velocity, maxNormalSpeed);
         }
     }
 

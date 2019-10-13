@@ -41,44 +41,51 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void Update()
     {
-        if (DistanceToPlayer() <= aggroRange)
+        if (player)
         {
-            RotateTowards(player.transform);
+            if (DistanceToPlayer() <= aggroRange)
+            {
+                RotateTowards(player.transform);
 
-            if (DistanceToPlayer() >= attackRange) 
-            {
-                if (attacking == true)
+                if (DistanceToPlayer() >= attackRange)
                 {
-                    CancelInvoke();
-                    attacking = false;
-                }
-                Thrust(Vector3.forward);
-            }
-            else
-            {
-                if (DistanceToPlayer() <= attackRange)
-                {
-                    if (attacking == false)
+                    if (attacking)
                     {
-                        InvokeRepeating("Fire", 0f, 60f / fireRate);
-                        attacking = true;
+                        CancelInvoke();
+                        attacking = false;
                     }
+                    Thrust(Vector3.forward);
                 }
-                if (shipRigidbody.velocity.magnitude > minimumAnchorSpeed)
+                else
                 {
-                    Thrust(Vector3.back);
+                    if (DistanceToPlayer() <= attackRange)
+                    {
+                        if (!attacking)
+                        {
+                            InvokeRepeating("Fire", 0f, 60f / fireRate);
+                            attacking = true;
+                        }
+                    }
+                    if (shipRigidbody.velocity.magnitude > minimumAnchorSpeed)
+                    {
+                        Thrust(Vector3.back);
+                    }
                 }
             }
         }
+        else attacking = false;
     }
 
     private void Fire()
     {
-        GameObject projectileObject = Instantiate(attackProjectile, projectileSocket.transform.position, projectileSocket.transform.rotation);
-        Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
+        if (player)
+        {
+            GameObject projectileObject = Instantiate(attackProjectile, projectileSocket.transform.position, projectileSocket.transform.rotation);
+            Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
 
-        Vector3 unitVectorToPlayer = (player.transform.position - projectileSocket.transform.position).normalized;
-        projectileObject.GetComponent<Rigidbody>().velocity = unitVectorToPlayer * projectileComponent.projectileSpeed;
+            Vector3 unitVectorToPlayer = (player.transform.position - projectileSocket.transform.position).normalized;
+            projectileObject.GetComponent<Rigidbody>().velocity = unitVectorToPlayer * projectileComponent.projectileSpeed;
+        }
     }
 
     private void RotateTowards(Transform target)

@@ -224,8 +224,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2945330192169571683}
   - component: {fileID: 166739769}
-  - component: {fileID: 942755435}
   - component: {fileID: 2000364743}
+  - component: {fileID: 4114863419892715690}
+  - component: {fileID: 4114863419892715689}
+  - component: {fileID: 4114863419892715688}
   m_Layer: 0
   m_Name: Player Ship
   m_TagString: Player
@@ -267,26 +269,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
---- !u!114 &942755435
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8007162931244764973}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d1644d8eafcf44f8b5c757646440fe2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hitPoints: 10
-  thrustForce: 2500
-  maxSpeed: 20
-  rotationSpeed: 1
-  attackProjectile: {fileID: 3914578126973830527, guid: edcb7a7f5e7054b9284dba5fc1dc87c4,
-    type: 3}
-  projectileSocket: {fileID: 3028796368626755266}
-  fireRate: 90
 --- !u!65 &2000364743
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -300,6 +282,50 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.0165236, y: 1, z: 2.2635684}
   m_Center: {x: 0.0082618, y: 0, z: -0.11457944}
+--- !u!114 &4114863419892715690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8007162931244764973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 489f34712e0424a4aa88a75f14ca0446, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thrustForce: 2500
+  maxNormalSpeed: 10
+  rotationSpeed: 5
+--- !u!114 &4114863419892715689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8007162931244764973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c76fd77f88da46c5925229dd23f33b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startingHitPoints: 10
+--- !u!114 &4114863419892715688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8007162931244764973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a27ef4031cdc14f51a4103453347d613, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackProjectile: {fileID: 3914578126973830527, guid: edcb7a7f5e7054b9284dba5fc1dc87c4,
+    type: 3}
+  projectileSocket: {fileID: 3028796368626755266}
+  fireRate: 500
 --- !u!1 &8956381205108945283
 GameObject:
   m_ObjectHideFlags: 0

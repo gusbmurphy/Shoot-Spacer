@@ -28,10 +28,13 @@ public class Drone : MonoBehaviour
 
     void Update()
     {
-        if (DistanceToPlayer() <= aggroRange)
+        if (player)
         {
-            RotateTowards(player.transform);
-            Thrust(Vector3.forward);
+            if (DistanceToPlayer() <= aggroRange)
+            {
+                RotateTowards(player.transform);
+                Thrust(Vector3.forward);
+            }
         }
     }
 
