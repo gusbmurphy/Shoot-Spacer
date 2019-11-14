@@ -66,7 +66,6 @@
     <Compile Include="Assets\Scripts\CameraArm.cs" />
     <Compile Include="Assets\Scripts\Drone.cs" />
     <Compile Include="Assets\Scripts\Enemy.cs" />
-    <Compile Include="Assets\Scripts\FrustumAlways.cs" />
     <Compile Include="Assets\Scripts\IDamageable.cs" />
     <Compile Include="Assets\Scripts\PlayerAttack.cs" />
     <Compile Include="Assets\Scripts\PlayerHealth.cs" />

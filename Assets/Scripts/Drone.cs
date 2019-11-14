@@ -7,14 +7,16 @@ using UnityEngine;
 
 // TODO shouldn't Drone just be a type of enemy? How do I make "subclasses"?
 
-public class Drone : MonoBehaviour
+public class Drone : MonoBehaviour, IDamageable
 {
     [SerializeField] int hitPoints = 1;
     [SerializeField] float thrustForce = 500f;
     [SerializeField] float maxSpeed = 12f;
     [SerializeField] float minimumAnchorSpeed = 0.5f;
-    [SerializeField] [Tooltip("In radians per second.")] float rotationSpeed = 100f;
+    [SerializeField] [Tooltip("In radians per second.")] float rotationSpeed = 10f;
     [SerializeField] float aggroRange = 18f;
+    [SerializeField] ParticleSystem destructEffect;
+    [SerializeField] int destructDamage = 5;
 
     ParticleSystem gun;
     private Rigidbody shipRigidbody;
@@ -58,31 +60,48 @@ public class Drone : MonoBehaviour
         shipRigidbody.AddRelativeForce(direction * thrustForce * Time.deltaTime);
     }
 
-    private void OnParticleCollision(GameObject other)
+    //private void OnParticleCollision(GameObject other)
+    //{
+    //    hitPoints--;
+    //    print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");
+    //    // TODO give visual hit feedback
+    //    if (hitPoints < 1)
+    //    {
+    //        print(gameObject.name + " was destroyed.");
+    //        Destroy(this.gameObject);
+    //        // TODO give visual destruction feedback
+    //    }
+    //}
+
+    void OnTriggerEnter(Collider c)
     {
-        hitPoints--;
-        print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");
-        // TODO give visual hit feedback
+        if (c.gameObject == GameObject.FindGameObjectWithTag("Player"))
+        {
+            var damageable = c.gameObject.GetComponent(typeof(IDamageable));
+            if (damageable) (damageable as IDamageable).TakeDamage(destructDamage);
+            var currentEffect = Instantiate(destructEffect, transform.position, Quaternion.identity);
+            Destroy(currentEffect.gameObject, currentEffect.main.duration);
+            Destroy(gameObject);
+        }
+    }
+
+    void IDamageable.TakeDamage(int damage)
+    {
+        // var currentEffect = Instantiate(damageEffect, transform.position, Quaternion.identity);
+        // Destroy(currentEffect.gameObject, currentEffect.main.duration);
+
+        hitPoints -= damage;
         if (hitPoints < 1)
         {
-            print(gameObject.name + " was destroyed.");
             Destroy(this.gameObject);
             // TODO give visual destruction feedback
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnDrawGizmosSelected()
     {
-        if (collision.gameObject == GameObject.FindGameObjectWithTag("Player"))
-        {
-            SelfDestruct();
-        }
-    }
-
-    private void SelfDestruct()
-    {
-        // TODO do damage to the player
-        Destroy(this.gameObject);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, aggroRange);
     }
 }
 

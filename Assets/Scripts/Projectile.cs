@@ -15,9 +15,9 @@ public class Projectile : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    void OnTriggerEnter(Collider coll)
+    void OnTriggerEnter(Collider c)
     {
-        var damageable = coll.gameObject.GetComponent(typeof(IDamageable));
+        var damageable = c.gameObject.GetComponent(typeof(IDamageable));
         if (damageable)
         {
             (damageable as IDamageable).TakeDamage(damage);
@@ -25,6 +25,7 @@ public class Projectile : MonoBehaviour
             Destroy(currentEffect.gameObject, currentEffect.main.duration);
             Destroy(this.gameObject);
         }
+
     }
     // TODO make projectiles "explode" on contact, creating visual hit feedback and deleting the projectile
 }

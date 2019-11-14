@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(Rigidbody))]
 
@@ -9,11 +10,12 @@ public class Enemy : MonoBehaviour, IDamageable
 {
     [Header("Behavior")]
     [SerializeField] int hitPoints = 5;
+    [SerializeField] NavMeshAgent navAgent;
     [SerializeField] float aggroRange = 12f;
     [SerializeField] float attackRange = 6f;
 
     [Header("Ship Properties")]
-    [SerializeField][Tooltip("In radians per second.")] float rotationSpeed = 100f;
+    [SerializeField][Tooltip("In radians per second.")] float rotationSpeed = 6f;
     [SerializeField] float thrustForce = 500f;
     [SerializeField] float maxSpeed = 8f;
     [SerializeField] float minimumAnchorSpeed = 0.5f;
@@ -21,7 +23,7 @@ public class Enemy : MonoBehaviour, IDamageable
     [Header("Weapon Properties")]
     [SerializeField] GameObject attackProjectile;
     [SerializeField] GameObject projectileSocket;
-    [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
+    [SerializeField][Tooltip("Projectiles per minute.")] float fireRate = 90f;
 
     [Header("Effects")]
     // [SerializeField] ParticleSystem damageEffect = null;
@@ -45,7 +47,8 @@ public class Enemy : MonoBehaviour, IDamageable
         {
             if (DistanceToPlayer() <= aggroRange)
             {
-                RotateTowards(player.transform);
+                //RotateTowards(player.transform);
+                navAgent.SetDestination(player.transform.position);
 
                 if (DistanceToPlayer() >= attackRange)
                 {
@@ -54,7 +57,7 @@ public class Enemy : MonoBehaviour, IDamageable
                         CancelInvoke();
                         attacking = false;
                     }
-                    Thrust(Vector3.forward);
+                    //Thrust(Vector3.forward);
                 }
                 else
                 {
@@ -66,10 +69,10 @@ public class Enemy : MonoBehaviour, IDamageable
                             attacking = true;
                         }
                     }
-                    if (shipRigidbody.velocity.magnitude > minimumAnchorSpeed)
-                    {
-                        Thrust(Vector3.back);
-                    }
+                    //if (shipRigidbody.velocity.magnitude > minimumAnchorSpeed)
+                    //{
+                    //    Thrust(Vector3.back);
+                    //}
                 }
             }
         }
@@ -88,22 +91,22 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    private void RotateTowards(Transform target)
-    {
-        // TODO how does this work?
-        // TODO change this to be physics based? Like with thrusting?
-        Vector3 targetDir = target.position - transform.position;
+    //private void RotateTowards(Transform target)
+    //{
+    //    // TODO how does this work?
+    //    // TODO change this to be physics based? Like with thrusting?
+    //    Vector3 targetDir = target.position - transform.position;
 
-        float step = rotationSpeed * Time.deltaTime;
+    //    float step = rotationSpeed * Time.deltaTime;
 
-        Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, step, 0.0f);
+    //    Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDir, step, 0.0f);
 
-        transform.rotation = Quaternion.LookRotation(newDir);
-    }
+    //    transform.rotation = Quaternion.LookRotation(newDir);
+    //}
 
     private float DistanceToPlayer() { return Vector3.Distance(transform.position, player.transform.position); }
 
-    private void Thrust(Vector3 direction) { shipRigidbody.AddRelativeForce(direction * thrustForce * Time.deltaTime); }
+    //private void Thrust(Vector3 direction) { shipRigidbody.AddRelativeForce(direction * thrustForce * Time.deltaTime); }
 
     void IDamageable.TakeDamage(int damage)
     {
@@ -111,12 +114,19 @@ public class Enemy : MonoBehaviour, IDamageable
         // Destroy(currentEffect.gameObject, currentEffect.main.duration);
 
         hitPoints -= damage;
-        print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");
         if (hitPoints < 1)
         {
-            print(gameObject.name + " was destroyed.");
             Destroy(this.gameObject);
             // TODO give visual destruction feedback
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, aggroRange);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2878652362972061699}
   - component: {fileID: 2232376035370589527}
   - component: {fileID: 5319271583649390749}
+  - component: {fileID: 4878926482706516888}
   m_Layer: 0
   m_Name: Drone
   m_TagString: Untagged
@@ -63,12 +64,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9489a4669c1a44f4adbd3ef52a7884e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitPoints: 5
+  hitPoints: 1
   thrustForce: 500
   maxSpeed: 12
   minimumAnchorSpeed: 0.5
-  rotationSpeed: 100
-  aggroRange: 12
+  rotationSpeed: 10
+  aggroRange: 18
+  destructEffect: {fileID: 3957038825069844355, guid: 973564e8cc0154593900d06ea412255c,
+    type: 3}
+  destructDamage: 5
+--- !u!65 &4878926482706516888
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2232376035370589525}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.59032965, y: 1, z: 1.0749305}
+  m_Center: {x: -0.011901616, y: 0, z: -0.13169937}
 --- !u!1 &4490454991523105679
 GameObject:
   m_ObjectHideFlags: 0
@@ -135,6 +152,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -226,6 +244,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -317,6 +336,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
