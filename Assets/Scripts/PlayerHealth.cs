@@ -9,7 +9,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     [Header("HUD")]
     [SerializeField] Slider healthBar;
-    [SerializeField] Text gameOverText;
+    [SerializeField] GameManager gameManager;
 
     private int hitPoints;
 
@@ -18,7 +18,6 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         hitPoints = startingHitPoints;
         healthBar.maxValue = startingHitPoints;
         healthBar.value = startingHitPoints;
-        gameOverText.color = Color.clear;
     }
 
     void IDamageable.TakeDamage(int damage)
@@ -28,21 +27,14 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         // TODO give visual hit feedback
         if (hitPoints <= 0)
         {
-            GameOver();
+            Die();
         }
     }
 
-    private void GameOver()
+    private void Die()
     {
         Destroy(gameObject);
         // TODO give visual destruction feedback
-        // TODO make a game end state
-        gameOverText.color = Color.white;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        gameManager.GameOver();
     }
 }

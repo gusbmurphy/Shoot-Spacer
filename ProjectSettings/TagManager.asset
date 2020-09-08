@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Play Area
   - Camera Arm
+  - Enemy
   layers:
   - Default
   - TransparentFX

@@ -7,9 +7,10 @@ using UnityEngine;
 
 // TODO shouldn't Drone just be a type of enemy? How do I make "subclasses"?
 
-public class Drone : MonoBehaviour
+public class Drone : MonoBehaviour, IDamageable
 {
     [SerializeField] int hitPoints = 1;
+    [SerializeField] int damage = 6;
     [SerializeField] float thrustForce = 500f;
     [SerializeField] float maxSpeed = 12f;
     [SerializeField] float minimumAnchorSpeed = 0.5f;
@@ -19,10 +20,12 @@ public class Drone : MonoBehaviour
     ParticleSystem gun;
     private Rigidbody shipRigidbody;
     GameObject player;
+    GameManager gm;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        gm = FindObjectOfType<GameManager>();
         shipRigidbody = GetComponent<Rigidbody>();
     }
 
@@ -71,6 +74,18 @@ public class Drone : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter(Collider coll)
+    {
+        var damageable = coll.gameObject.GetComponent(typeof(IDamageable));
+        if (damageable)
+        {
+            (damageable as IDamageable).TakeDamage(damage);
+            // var currentEffect = Instantiate(hitEffect, transform.position, Quaternion.identity);
+            // Destroy(currentEffect.gameObject, currentEffect.main.duration);
+            Destroy(this.gameObject);
+        }
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject == GameObject.FindGameObjectWithTag("Player"))
@@ -83,6 +98,21 @@ public class Drone : MonoBehaviour
     {
         // TODO do damage to the player
         Destroy(this.gameObject);
+    }
+
+    void IDamageable.TakeDamage(int damage)
+    {
+        // var currentEffect = Instantiate(damageEffect, transform.position, Quaternion.identity);
+        // Destroy(currentEffect.gameObject, currentEffect.main.duration);
+
+        hitPoints -= damage;
+
+        if (hitPoints < 1)
+        {
+            gm.EnemyDeath();
+            Destroy(this.gameObject);
+            // TODO give visual destruction feedback
+        }
     }
 }
 

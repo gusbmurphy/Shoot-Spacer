@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -32,10 +33,14 @@ public class Enemy : MonoBehaviour, IDamageable
     bool attacking = false;
 
     GameObject player; // TODO when the player is destroyed what happens to this?
+    GameManager gm;
+
+    public event Action onDeath;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
+        gm = FindObjectOfType<GameManager>();
         shipRigidbody = GetComponent<Rigidbody>();
     }
 
@@ -111,10 +116,10 @@ public class Enemy : MonoBehaviour, IDamageable
         // Destroy(currentEffect.gameObject, currentEffect.main.duration);
 
         hitPoints -= damage;
-        print(gameObject.name + " was hit down to " + hitPoints + " hitpoints.");
+
         if (hitPoints < 1)
         {
-            print(gameObject.name + " was destroyed.");
+            gm.EnemyDeath();
             Destroy(this.gameObject);
             // TODO give visual destruction feedback
         }

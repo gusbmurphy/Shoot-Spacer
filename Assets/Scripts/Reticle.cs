@@ -128,7 +128,7 @@ public class Reticle : MonoBehaviour
 
     private void LateUpdate()
     {
-        AdjustPlayerAim();
+        if (player) AdjustPlayerAim();
     }
 
     private void ClampReticlesWithinView()
