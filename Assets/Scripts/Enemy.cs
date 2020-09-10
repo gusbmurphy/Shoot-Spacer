@@ -22,7 +22,7 @@ public class Enemy : MonoBehaviour, IDamageable
     [Header("Weapon Properties")]
     [SerializeField] GameObject attackProjectile;
     [SerializeField] GameObject projectileSocket;
-    [SerializeField] [Tooltip("Projectiles per minute.")] float fireRate = 90f;
+    [SerializeField][Tooltip("Projectiles per minute.")] float fireRate = 90f;
 
     [Header("Effects")]
     // [SerializeField] ParticleSystem damageEffect = null;
