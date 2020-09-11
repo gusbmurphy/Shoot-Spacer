@@ -8,44 +8,49 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] Text gameOverText;
-    [SerializeField] Text enemyCountText;
-    private int numOfEnemies = 0;
+  private int numOfWaves, numOfCompletedWaves = 0;
+  public Text gameOverText;
+  public Text levelCompleteText;
+  private int buildIndex;
 
-    void Start()
-    {
-        print(SceneManager.sceneCountInBuildSettings);
-        print("Build index: " + SceneManager.GetActiveScene().buildIndex);
-        gameOverText.color = Color.clear;
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        print(enemies);
-        numOfEnemies = enemies.Length;
-        enemyCountText.text = numOfEnemies + " ENEMIES LEFT";
-    }
-    public void GameOver()
-    {
-        gameOverText.color = Color.white;
-    }
+  void Start()
+  {
+    buildIndex = SceneManager.GetActiveScene().buildIndex;
 
-    public void EnemyDeath()
+    gameOverText.color = Color.clear;
+    levelCompleteText.color = Color.clear;
+
+    EnemyWave[] waves = FindObjectsOfType<EnemyWave>();
+    numOfWaves = waves.Length;
+
+    void WaveCompletionHandler()
     {
-        numOfEnemies--;
-        enemyCountText.text = numOfEnemies + " ENEMIES LEFT";
-        if (numOfEnemies < 1)
-        {
-            FinishLevel();
-        }
+      numOfCompletedWaves++;
+      if (numOfCompletedWaves >= numOfWaves) FinishLevel();
     }
 
-    public void FinishLevel()
+    foreach (EnemyWave wave in waves) wave.OnCompletion += WaveCompletionHandler;
+  }
+  public void GameOver()
+  {
+    gameOverText.color = Color.white;
+  }
+
+  private IEnumerator LevelOverScreenTimeout()
+  {
+    yield return new WaitForSeconds(3);
+    SceneManager.LoadScene(buildIndex + 1);
+  }
+  public void FinishLevel()
+  {
+    if (buildIndex + 1 >= SceneManager.sceneCountInBuildSettings)
     {
-        int buildIndex = SceneManager.GetActiveScene().buildIndex;
-        if (buildIndex + 1 >= SceneManager.sceneCountInBuildSettings)
-        {
-            print("All done!");
-        } else
-        {
-            SceneManager.LoadScene(buildIndex + 1);
-        }
+      throw new NotImplementedException("The game is over!");
     }
+    else
+    {
+      levelCompleteText.color = Color.white;
+      StartCoroutine(LevelOverScreenTimeout());
+    }
+  }
 }

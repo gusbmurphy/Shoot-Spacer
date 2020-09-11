@@ -1,18 +1,37 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawn : MonoBehaviour
 {
-    [SerializeField] GameObject enemyToSpawn;
+  [SerializeField] GameObject enemyToSpawn;
+  private bool _hasSpawned = false;
+  public bool HasSpawned { get => _hasSpawned; }
+  private bool _enemyDefeated = false;
+  public bool EnemyDefeated { get => _enemyDefeated; }
+  private GameObject spawnedEnemy;
+  public event Action OnCompletion;
 
-    private void OnDrawGizmos()
+  private void OnDrawGizmos()
+  {
+    Gizmos.color = Color.red;
+    Gizmos.DrawSphere(transform.position, 1);
+  }
+  public void Spawn()
+  {
+    if (_hasSpawned)
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(transform.position, 1);
+      Debug.LogException(new UnityException("Spawner has already spawned!"));
+      return;
     }
-    public void Spawn()
-    {
-        Instantiate(enemyToSpawn, transform);
+    spawnedEnemy = Instantiate(enemyToSpawn, transform);
+    _hasSpawned = true;
+
+    void DeathHandler() { 
+      _enemyDefeated = true;
+      if (OnCompletion != null) OnCompletion();
     }
+    spawnedEnemy.GetComponent<Enemy>().OnDeath += DeathHandler;
+  }
 }

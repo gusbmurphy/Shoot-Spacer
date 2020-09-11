@@ -27,8 +27,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2232376035370589525}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.36, y: -22.656773, z: -5.04}
-  m_LocalScale: {x: 1.26, y: 1.26, z: 1.26}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4474421616387748908}
   m_Father: {fileID: 0}
@@ -63,12 +63,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints: 1
-  damage: 6
+  rotationSpeed: 100
   thrustForce: 500
   maxSpeed: 12
   minimumAnchorSpeed: 0.5
-  rotationSpeed: 100
   aggroRange: 100
+  selfDestructDamage: 5
 --- !u!65 &6520683229067296947
 BoxCollider:
   m_ObjectHideFlags: 0
