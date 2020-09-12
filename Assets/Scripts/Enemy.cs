@@ -10,24 +10,12 @@ public class Enemy : MonoBehaviour, IDamageable
 {
   [Header("Behavior")]
   public int hitPoints = 5;
-  // [SerializeField] float aggroRange = 12f;
-  // [SerializeField] float attackRange = 6f;
 
   [Header("Ship Properties")]
   [Tooltip("In radians per second.")] public float rotationSpeed = 100f;
   public float thrustForce = 500f;
   public float maxSpeed = 8f;
   public float minimumAnchorSpeed = 0.5f;
-
-  // [Header("Weapon Properties")]
-  // [SerializeField] GameObject attackProjectile;
-  // [SerializeField] GameObject projectileSocket;
-  // [SerializeField][Tooltip("Projectiles per minute.")] float fireRate = 90f;
-
-  // [Header("Effects")]
-  // [SerializeField] ParticleSystem damageEffect = null;
-
-  //  private ParticleSystem.EmissionModule gunEmission;
   protected Rigidbody shipRigidbody;
   // bool attacking = false;
 
@@ -42,55 +30,6 @@ public class Enemy : MonoBehaviour, IDamageable
     gm = FindObjectOfType<GameManager>();
     shipRigidbody = GetComponent<Rigidbody>();
   }
-
-  // void Update()
-  // {
-  //   if (player)
-  //   {
-  //     if (DistanceToPlayer() <= aggroRange)
-  //     {
-  //       RotateTowards(player.transform);
-
-  //       if (DistanceToPlayer() >= attackRange)
-  //       {
-  //         if (attacking)
-  //         {
-  //           CancelInvoke();
-  //           attacking = false;
-  //         }
-  //         Thrust(Vector3.forward);
-  //       }
-  //       else
-  //       {
-  //         if (DistanceToPlayer() <= attackRange)
-  //         {
-  //           if (!attacking)
-  //           {
-  //             InvokeRepeating("Fire", 0f, 60f / fireRate);
-  //             attacking = true;
-  //           }
-  //         }
-  //         if (shipRigidbody.velocity.magnitude > minimumAnchorSpeed)
-  //         {
-  //           Thrust(Vector3.back);
-  //         }
-  //       }
-  //     }
-  //   }
-  //   else attacking = false;
-  // }
-
-  // private void Fire()
-  // {
-  //   if (player)
-  //   {
-  //     GameObject projectileObject = Instantiate(attackProjectile, projectileSocket.transform.position, projectileSocket.transform.rotation);
-  //     Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
-
-  //     Vector3 unitVectorToPlayer = (player.transform.position - projectileSocket.transform.position).normalized;
-  //     projectileObject.GetComponent<Rigidbody>().velocity = unitVectorToPlayer * projectileComponent.projectileSpeed;
-  //   }
-  // }
 
   private void RotateTowards(Transform target)
   {
@@ -111,15 +50,11 @@ public class Enemy : MonoBehaviour, IDamageable
 
   void IDamageable.TakeDamage(int damage)
   {
-    // var currentEffect = Instantiate(damageEffect, transform.position, Quaternion.identity);
-    // Destroy(currentEffect.gameObject, currentEffect.main.duration);
-
     hitPoints -= damage;
 
     if (hitPoints < 1)
     {
       if (OnDeath != null) OnDeath();
-      // gm.EnemyDeath();
       Destroy(this.gameObject);
       // TODO give visual destruction feedback
     }

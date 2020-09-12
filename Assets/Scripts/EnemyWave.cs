@@ -12,7 +12,7 @@ public class EnemyWave : MonoBehaviour
   private int numOfSpawns;
   private int numOfDefeatedSpawns = 0;
   EnemySpawn[] spawns;
-  // Start is called before the first frame update
+  
   void Start()
   {
     StartCoroutine(BeginCountdown());
