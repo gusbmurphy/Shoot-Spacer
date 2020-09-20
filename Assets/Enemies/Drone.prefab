@@ -63,10 +63,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitPoints: 1
+  timeToSpawn: 1.5
   rotationSpeed: 100
   thrustForce: 500
   maxSpeed: 12
   minimumAnchorSpeed: 0.5
+  regularMaterial: {fileID: 2100000, guid: 68f8164c8bb8b474b8569f080aa87296, type: 2}
+  spawningMaterial: {fileID: 2100000, guid: 64bd05fa9ff637746afe87f25903b1aa, type: 2}
   aggroRange: 100
   selfDestructDamage: 5
 --- !u!65 &6520683229067296947

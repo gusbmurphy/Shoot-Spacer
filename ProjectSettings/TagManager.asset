@@ -7,6 +7,7 @@ TagManager:
   - Play Area
   - Camera Arm
   - Enemy
+  - PlayerShip
   layers:
   - Default
   - TransparentFX
