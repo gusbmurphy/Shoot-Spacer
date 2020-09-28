@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,7 +12,6 @@ public class PlayerController : MonoBehaviour, IDamageable
   [Header("Movement")]
   [SerializeField] int thrustForce = 2500;
   [SerializeField] float maxNormalSpeed = 10f;
-  private float currentMaxSpeed;
   [SerializeField] public float rotationSpeed = 1f;
 
   [Header("Attack")]
@@ -24,11 +24,12 @@ public class PlayerController : MonoBehaviour, IDamageable
   [SerializeField] GameManager gameManager;
 
   [Header("Radar")]
-  [SerializeField] int numOfVertices = 30;
+  // [SerializeField] int numOfVertices = 30;
   [SerializeField] float radius = 4f;
-  [SerializeField] float width = 0.1f;
-  [Tooltip("Distance that radar noise effects radar points.")]
-  [SerializeField] float noiseRadius = 0.5f;
+  [SerializeField] GameObject radarIndicatorObject;
+  // [SerializeField] float width = 0.1f;
+  // [Tooltip("Distance that radar noise effects radar points.")]
+  // [SerializeField] float noiseRadius = 0.5f;
 
   [Header("Cheats")]
   [SerializeField] bool godModeOn = false;
@@ -40,6 +41,7 @@ public class PlayerController : MonoBehaviour, IDamageable
   private List<Transform> enemyTransforms = new List<Transform>();
   private Vector3[] feedbackPoints;
   private LineRenderer lineRenderer;
+  private float currentMaxSpeed;
 
   void Start()
   {
@@ -50,7 +52,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     playerShip = GameObject.FindGameObjectWithTag("PlayerShip");
     SetUpCameraDirections();
     currentMaxSpeed = maxNormalSpeed;
-    DrawCircle();
+    // DrawCircle();
     AddSpawnHandlers();
   }
 
@@ -62,53 +64,47 @@ public class PlayerController : MonoBehaviour, IDamageable
     else if (Input.GetButtonUp("Fire1")) CancelInvoke();
     CheckForInput();
     ClampSpeed();
-    if (enemyTransforms.Count > 0) CreateRadarFeedback(enemyTransforms.Select(transform => transform.position).ToArray());
   }
 
-  private void LateUpdate() 
+  private void LateUpdate()
   {
     transform.position = playerShip.transform.position;
+    // if (enemyTransforms.Count > 0) UpdateRadar(enemyTransforms.Select(transform => transform.position).ToArray());
   }
 
-  private void DrawCircle()
-  {
-    lineRenderer = GetComponent<LineRenderer>();
-    lineRenderer.useWorldSpace = false;
-    lineRenderer.startWidth = width;
-    lineRenderer.endWidth = width;
-    lineRenderer.loop = true;
-    lineRenderer.positionCount = numOfVertices;
+  // private void UpdateRadar(Vector3[] targets)
+  // {
 
-    // Again, all credit to codinBlack for this math!
-    Vector3 centerPoint = transform.position;
-    float angle = 2 * Mathf.PI / numOfVertices;
-
-    for (int i = 0; i < numOfVertices; i++)
-    {
-      Matrix4x4 rotationMatrix = new Matrix4x4
-      (
-        new Vector4(Mathf.Cos(angle * i), 0, Mathf.Sin(angle * i), 0),
-        new Vector4(0, 1, 0, 0),
-        new Vector4(-1 * Mathf.Sin(angle * i), 0, Mathf.Cos(angle * i), 0),
-        new Vector4(0, 0, 0, 1)
-      );
-      Vector3 initialRelativePosition = new Vector3(radius, 0, 0);
-      lineRenderer.SetPosition(i, centerPoint + rotationMatrix.MultiplyPoint(initialRelativePosition));
-    }
-  }
+  // }
 
   private void AddSpawnHandlers()
   {
     spawns = GameObject.FindObjectsOfType<EnemySpawn>();
-    void EnemySpawnHandler(Transform enemyTransform) { enemyTransforms.Add(enemyTransform); }
-    void EnemyDeathHandler(Transform enemyTransform){ enemyTransforms.Remove(enemyTransform); }
+
+    void EnemySpawnHandler(Transform enemyTransform) 
+    { 
+      enemyTransforms.Add(enemyTransform);
+      CreateRadarIndicator(enemyTransform.GetComponent<Enemy>());
+    }
+    void EnemyDeathHandler(Transform enemyTransform) 
+    { 
+      enemyTransforms.Remove(enemyTransform);
+    }
 
     foreach (EnemySpawn spawn in spawns)
     {
       spawn.OnEnemySpawn += EnemySpawnHandler;
       spawn.OnSpawnedDeath += EnemyDeathHandler;
     }
+  }
 
+  private GameObject CreateRadarIndicator(Enemy target)
+  {
+    GameObject newIndicator = Instantiate(radarIndicatorObject);
+    newIndicator.transform.position = transform.position;
+    newIndicator.GetComponent<RadarIndicator>().target = target;
+    newIndicator.GetComponent<RadarIndicator>().playerTransform = transform;
+    return newIndicator;
   }
 
   // These vectors correspond to the directions relative to the camera
@@ -158,7 +154,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
   private void ClampSpeed()
   {
-    if (shipRigidbody.velocity.magnitude > maxNormalSpeed) 
+    if (shipRigidbody.velocity.magnitude > maxNormalSpeed)
       shipRigidbody.velocity = Vector3.ClampMagnitude(shipRigidbody.velocity, maxNormalSpeed);
   }
 
@@ -188,47 +184,89 @@ public class PlayerController : MonoBehaviour, IDamageable
     projectileObject.GetComponent<Rigidbody>().velocity = unitDirectionVector * projectileComponent.projectileSpeed;
   }
 
-  private void CreateRadarFeedback(Vector3[] targets)
+  private void OnDrawGizmos()
   {
-    // Find intersections (feedbackPoint) between the radar ring and a line from the center to the targets,
-    // which will be a line from the center to the target whose length is the radar ring's radius.
-    feedbackPoints = targets.Select(target =>
-      { return (target - transform.position).normalized * radius; }
-      ).ToArray();
-
-    Vector3[] newPositions = new Vector3[lineRenderer.positionCount];
-    lineRenderer.GetPositions(newPositions);
-    // Go through each position on the radar ring.
-    for (int i = 0; i < newPositions.Length; i++)
+    if (lineRenderer)
     {
-      Vector3 position = newPositions[i];
-
-      int j = 0;
-      bool isModified = false;
-      // Now, loop through each of the feedback points, modifying the point on the ring
-      // if it's within distance of one of them, and breaking if so.
-      while (!isModified && j < feedbackPoints.Length)
+      Gizmos.color = Color.red;
+      Vector3[] radarLinePositions = new Vector3[lineRenderer.positionCount];
+      lineRenderer.GetPositions(radarLinePositions);
+      foreach (Vector3 position in radarLinePositions)
       {
-        Vector3 feedbackPoint = feedbackPoints[j];
-        float distanceFromFeedback = (position - feedbackPoint).magnitude;
-        if (distanceFromFeedback < noiseRadius)
-        {
-          float x = newPositions[i].x;
-          float z = newPositions[i].z;
-          newPositions[i].Set(x, 1f, z);
-          isModified = true;
-        }
-        j++;
-      }
-      // If the point was not near a feedback point, make sure it is set to be "flat".
-      if (!isModified)
-      {
-        float x = newPositions[i].x;
-        float z = newPositions[i].z;
-        newPositions[i].Set(x, 0f, z);
+        Gizmos.DrawSphere(position, 0.25f);
       }
     }
-
-    lineRenderer.SetPositions(newPositions);
   }
 }
+
+// This code was for creating a "line radar" similar to MGS4
+
+// private void DrawCircle()
+// {
+//   lineRenderer = GetComponent<LineRenderer>();
+//   lineRenderer.useWorldSpace = false;
+//   lineRenderer.startWidth = width;
+//   lineRenderer.endWidth = width;
+//   lineRenderer.loop = true;
+//   lineRenderer.positionCount = numOfVertices;
+
+//   // Again, all credit to codinBlack for this math!
+//   Vector3 centerPoint = transform.position;
+//   float angle = 2 * Mathf.PI / numOfVertices;
+
+//   for (int i = 0; i < numOfVertices; i++)
+//   {
+//     Matrix4x4 rotationMatrix = new Matrix4x4
+//     (
+//       new Vector4(Mathf.Cos(angle * i), 0, Mathf.Sin(angle * i), 0),
+//       new Vector4(0, 1, 0, 0),
+//       new Vector4(-1 * Mathf.Sin(angle * i), 0, Mathf.Cos(angle * i), 0),
+//       new Vector4(0, 0, 0, 1)
+//     );
+//     Vector3 initialRelativePosition = new Vector3(radius, 0, 0);
+//     lineRenderer.SetPosition(i, centerPoint + rotationMatrix.MultiplyPoint(initialRelativePosition));
+//   }
+// }
+
+// private void CreateRadarFeedback(Vector3[] targets)
+// {
+//   // Find intersections (feedbackPoint) between the radar ring and a line from the center to the targets,
+//   // which will be a line from the center to the target whose length is the radar ring's radius.
+//   feedbackPoints = targets.Select(target =>
+//     { return (target - transform.position).normalized * radius; }
+//     ).ToArray();
+
+//   Vector3[] newPositions = new Vector3[lineRenderer.positionCount];
+//   lineRenderer.GetPositions(newPositions);
+//   // Go through each position on the radar ring.
+//   for (int i = 0; i < newPositions.Length; i++)
+//   {
+//     Vector3 position = newPositions[i];
+//     int j = 0;
+//     bool isModified = false;
+//     // Now, loop through each of the feedback points, modifying the point on the ring
+//     // if it's within distance of one of them, and breaking if so.
+//     while (!isModified && j < feedbackPoints.Length)
+//     {
+//       Vector3 feedbackPoint = feedbackPoints[j];
+//       float distanceFromFeedback = (position - feedbackPoint).magnitude;
+//       if (distanceFromFeedback < noiseRadius)
+//       {
+//         float x = newPositions[i].x;
+//         float z = newPositions[i].z;
+//         float y = 1;
+//         newPositions[i].Set(x, y, z);
+//         isModified = true;
+//       }
+//       j++;
+//     }
+//     // If the point was not near a feedback point, make sure it is set to be "flat".
+//     if (!isModified)
+//     {
+//       float x = newPositions[i].x;
+//       float z = newPositions[i].z;
+//       newPositions[i].Set(x, 0f, z);
+//     }
+//   }
+//   lineRenderer.SetPositions(newPositions);
+// }

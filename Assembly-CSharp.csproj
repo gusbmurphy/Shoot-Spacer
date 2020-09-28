@@ -36,26 +36,23 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Player\PlayerRadar.cs" />
      <Compile Include="Assets\Scripts\Environment\BarrierCollision.cs" />
      <Compile Include="Assets\Scripts\UI\TitleScreenManager.cs" />
-     <Compile Include="Assets\Scripts\Player\PlayerMovement.cs" />
      <Compile Include="Assets\Scripts\General\Projectile.cs" />
-     <Compile Include="Assets\Scripts\Player\PlayerAttack.cs" />
      <Compile Include="Assets\Scripts\Environment\Barrier.cs" />
      <Compile Include="Assets\Scripts\Starfield.cs" />
      <Compile Include="Assets\Scripts\General\GameManager.cs" />
      <Compile Include="Assets\Scripts\Camera\FrustumAlways.cs" />
      <Compile Include="Assets\Scripts\Enemies\Drone.cs" />
-     <Compile Include="Assets\Scripts\Player\PlayerHealth.cs" />
      <Compile Include="Assets\Scripts\Enemies\Fighter.cs" />
      <Compile Include="Assets\Scripts\Enemies\Enemy.cs" />
+     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
      <Compile Include="Assets\Scripts\Enemies\EnemyWave.cs" />
      <Compile Include="Assets\Scripts\Enemies\EnemySpawn.cs" />
      <Compile Include="Assets\Scripts\Camera\CameraArm.cs" />
      <Compile Include="Assets\Scripts\UI\Reticle.cs" />
      <Compile Include="Assets\Scripts\General\IDamageable.cs" />
-     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
+     <Compile Include="Assets\Scripts\UI\RadarIndicator.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
